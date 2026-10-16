@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Sean Chen revisits single-image GAN adaptation: a frozen StyleGAN2 synthesis network, low-rank capacity, and what failed experiments teach us about learning from one image.">
+  <meta name="author" content="Sean Chen">
+  <meta name="theme-color" content="#faf9f6">
+  <meta property="og:title" content="One Image, Many Possibilities — Sean Chen">
+  <meta property="og:description" content="Revisiting single-image GAN adaptation, from a recovered experiment to controlled ablations.">
+  <meta property="og:type" content="article">
+  <meta property="og:url" content="https://chseanc-gif.github.io/single-image-gan-research-blog/">
+  <meta property="og:image" content="https://chseanc-gif.github.io/single-image-gan-research-blog/assets/historical-fixed.png">
+  <link rel="canonical" href="https://chseanc-gif.github.io/single-image-gan-research-blog/">
+  <title>One Image, Many Possibilities · Sean Chen</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#article">Skip to article</a>
+  <header class="masthead"><a href="#top" aria-label="Back to top">Sean Chen <span>/ Research notes</span></a><a href="#evidence">Experiment record <span aria-hidden="true">↗</span></a></header>
+  <main id="top">
+    <div class="title-block">
+      <p class="eyebrow">Generative modeling · Research retrospective</p>
+      <h1>One image,<br>many <em>possibilities.</em></h1>
+      <p class="subtitle">Revisiting single-image GAN adaptation</p>
+      <p class="dek">Can a generator learn the character of one photograph<br class="desktop"> without losing the ability to imagine something new?</p>
+      <p class="byline">Sean Chen <span>·</span> October 14, 2026 <span>·</span> <span id="reading-time">12 min read</span></p>
+      <div class="resource-links"><a class="primary" href="#method">Explore the method <span aria-hidden="true">↓</span></a><a href="#results">View experiments</a><a href="evidence.json">Data &amp; provenance <span aria-hidden="true">↗</span></a><a href="https://github.com/chseanc-gif/single-image-gan-research-blog">GitHub <span aria-hidden="true">↗</span></a></div>
+    </div>
+
+    <figure class="teaser wide">
+      <div class="teaser-layout">
+        <div class="reference"><div class="figure-label"><span class="dot"></span> One reference photograph</div><img src="assets/reference.jpg" width="512" height="384" alt="The original reference: a red BMW E46 parked beside a brick wall and trees."></div>
+        <div class="teaser-arrow" aria-hidden="true">→</div>
+        <div class="generated"><div class="figure-label">Four random inputs → four generated images</div><div class="teaser-samples">
+          <img src="assets/historical-0.png" width="512" height="512" alt="Historical adaptation, fixed input 0: a dark SUV with a brick and foliage background.">
+          <img src="assets/historical-1.png" width="512" height="512" alt="Historical adaptation, fixed input 1: a red car seen from behind.">
+          <img src="assets/historical-2.png" width="512" height="512" alt="Historical adaptation, fixed input 2: a red sedan, with an incorrect grille and body identity.">
+          <img src="assets/historical-3.png" width="512" height="512" alt="Historical adaptation, fixed input 3: a dark SUV with red highlights.">
+        </div></div>
+      </div>
+      <figcaption><span>Figure 1.</span> A single training photograph, followed by all four fixed-input samples from recovered historical run 2.21. Appearance carries over; exact BMW identity does not. These are fresh renders from recovered weights, with fixed synthesis noise and no truncation. Black borders are retained from the saved model outputs.</figcaption>
+    </figure>
+
+    <div class="article-layout">
+      <aside class="contents" aria-label="On this page"><p>On this page</p><nav><a href="#question">The question</a><a href="#method">The original idea</a><a href="#recovery">Recovering the experiment</a><a href="#results">What the samples reveal</a><a href="#capacity">Capacity ≠ optimization</a><a href="#metrics">When a metric misleads</a><a href="#next">The next investigation</a><a href="#evidence">Evidence &amp; references</a></nav></aside>
+      <article id="article">
+        <section id="question">
+          <p class="section-number">01 / The question</p>
+          <h2>Learning a distribution<br>from a single example</h2>
+          <p class="lead">One photograph tells us what a particular scene looks like. It does not tell us which parts should stay fixed, which should vary, or what the same subject looks like from the other side.</p>
+          <p>That ambiguity is the starting point for my single-image GAN adaptation project. The target is a photograph of a red BMW E46. I want to adapt a pretrained car generator so that new random inputs produce varied images that inherit something useful from that reference: its appearance, its visual character, ideally its vehicle identity.</p>
+          <p>Simply reconstructing the photograph would solve a different problem. A generator that always produces the training image has excellent fidelity to that image and no useful diversity. A generator that ignores the image preserves variety but learns nothing from it. The interesting region lies between those extremes.</p>
+          <p>This post follows the project from its original mapping-based method through the recovery of old checkpoints and a series of modern adaptation experiments. The strongest result is a diagnostic one: the historical transformation is highly compressible, yet the tested low-rank training recipes did not recover its visual quality. That gap between <em>what a model can represent</em> and <em>what training actually finds</em> became the central research question.</p>
+          <div class="takeaway"><p class="eyebrow">The central observation</p><p>A small update can represent an adaptation.<br>Finding that update from one image is the harder problem.</p></div>
+        </section>
+
+        <section id="method">
+          <p class="section-number">02 / The original idea</p>
+          <h2>Keep the renderer.<br>Change where you look.</h2>
+          <p>A pretrained <a href="https://arxiv.org/abs/1912.04958">StyleGAN2</a> generator already contains substantial knowledge about cars, lighting, and scenes. Its mapping network transforms a random vector <i>z</i> into a style vector <i>w</i>; its synthesis network turns that style into an image. My original combined-mapping design keeps synthesis frozen and trains a mapping branch alongside a frozen copy of the pretrained mapping.</p>
+          <figure class="method-figure"><img src="assets/method.svg" width="1000" height="390" loading="lazy" alt="A random latent z enters two branches: a trainable mapping f theta and a frozen source mapping f zero. Learned elementwise coefficients a and b combine their outputs. Frozen synthesis S converts the combined style into a generated image."><figcaption><span>Figure 2.</span> The combined-mapping generator. Only the learned mapping and blend coefficients change on the generator side. The synthesis network and reference mapping stay frozen.</figcaption></figure>
+          <div class="equation" aria-label="The adapted image equals frozen synthesis applied to a times learned mapping of z plus b times source mapping of z"><i>w</i><sub>adapt</sub> = <b>a</b> ⊙ <i>f</i><sub>θ</sub>(<i>z</i>) + <b>b</b> ⊙ <i>f</i><sub>0</sub>(<i>z</i>)<br><i>x</i><sub>adapt</sub> = <i>S</i><sub>0</sub>(<i>w</i><sub>adapt</sub>)</div>
+          <p>Here <i>f</i><sub>0</sub> is the frozen source mapping, <i>f</i><sub>θ</sub> is the learned mapping, and <i>S</i><sub>0</sub> is frozen synthesis. The vectors <b>a</b> and <b>b</b> are learned elementwise coefficients—not a single mixing slider, and not constrained to sum to one. In the restored implementation, both start at 0.5, and the learned mapping starts from the source mapping, so the initial generator reproduces the pretrained model.</p>
+          <p>The intuition is to reuse the source generator’s visual vocabulary while changing how random inputs move through it. This imposes a useful constraint, but it does not guarantee realism: the mapping can still push styles into regions where the frozen synthesis network produces poor images.</p>
+          <p>The training signal also combines adaptation and preservation. The restored discriminator averages a partially trainable discriminator’s score on an augmented image with a frozen reference discriminator’s score on the unaugmented image. A weight penalty discourages the trainable discriminator from moving too far from the source. Freezing the reference parameters still permits gradients through its input, so it can guide the generator.</p>
+          <details><summary>Implementation details that matter</summary><p>The combined model uses one 512-dimensional style vector and two learned 512-dimensional blend vectors. The mapping has eight fully connected layers. The restored discriminator retains the notebook’s constant 4.0 minibatch-statistic channel. Its early convolution blocks remain frozen while later blocks and the final layers train. The notebook’s duplicated 0.001 discriminator weight penalty is represented as a single 0.002 penalty. These are details of this project’s restoration, not default StyleGAN2 settings.</p></details>
+        </section>
+
+        <section id="recovery">
+          <p class="section-number">03 / Recovering the experiment</p>
+          <h2>What did the old model actually learn?</h2>
+          <p>Revisiting an old notebook first required establishing what could be recovered. Two historical generators, labeled run 1 and run 2.21, loaded into the restored 512-pixel implementation. For both, all <strong>137 non-mapping tensors</strong> matched the official pretrained car generator exactly. The learned changes were in the mapping network and the saved blend coefficients.</p>
+          <p>That is direct evidence for the design’s intended constraint: the recovered generator did not learn new synthesis filters. Compact mapping packages could reconstruct all 153 saved generator tensors exactly. But the archive lacked the separate original reference model, per-run source, and exact training-step metadata. Fresh inference therefore uses the official reference mapping and the notebook’s combined-mapping formula. It is a documented reconstruction, with incomplete historical provenance.</p>
+          <p>The restored training loop also completed a short GPU run and checkpoint continuation. Those checks establish that training and resumption work; eleven updates do not establish that the old training result has been reproduced. Keeping those claims separate is essential when an experiment spans old notebooks, newer libraries, and recovered weights.</p>
+        </section>
+
+        <section id="results">
+          <p class="section-number">04 / Inspect the outputs</p>
+          <h2>Appearance transfers.<br>Identity remains difficult.</h2>
+          <p>The recovered model visibly changes the distribution. Red paint, greenery, and brick textures become recurring themes, while viewpoints and vehicle shapes still vary. The samples also expose the limitation: SUVs, incorrect grilles, and inconsistent body geometry remain. Shared colors and backgrounds are easier to recognize than faithful BMW identity.</p>
+          <figure class="explorer" id="sample-explorer">
+            <div class="explorer-controls"><div><label for="model-select">Compare with the source generator</label><select id="model-select"><option value="historical">Historical run 2.21</option><option value="rank32">Rank-32 compression · biases retained</option><option value="reset">Rank-32 compression · biases reset</option><option value="mapping">Mapping-only LoRA · step 6,000</option><option value="both">Mapping + synthesis LoRA · step 6,000</option></select></div><fieldset><legend>Sample bank</legend><label><input type="radio" name="bank" value="fixed" checked> Fixed 4</label><label><input type="radio" name="bank" value="development"> Development 12</label></fieldset></div>
+            <div class="sample-strip"><p class="figure-label">Pretrained source</p><a id="source-full" href="assets/source-fixed.png" target="_blank" rel="noopener"><img id="source-grid" src="assets/source-fixed.png" width="2058" height="516" loading="lazy" alt="All four fixed samples from the pretrained car generator. Open full resolution."></a></div>
+            <div class="sample-strip"><p class="figure-label" id="model-label">Historical run 2.21</p><a id="adapted-full" href="assets/historical-fixed.png" target="_blank" rel="noopener"><img id="adapted-grid" src="assets/historical-fixed.png" width="2058" height="516" loading="lazy" alt="All four fixed samples from historical run 2.21. Open full resolution."></a></div>
+            <p class="explorer-note" id="comparison-note" aria-live="polite">Recovered mapping and blend coefficients, with the official reference mapping. No new training.</p>
+            <figcaption><span>Figure 3.</span> Explore every image in the fixed four or development twelve bank. Within each bank the sample order is preserved; click a grid to inspect the original file. Fixed latents match exactly. Development latents generated across environments differ by at most 1.55 × 10<sup>−6</sup>; cross-device renders are not bitwise identical. The twelve development inputs participated in model selection. This viewer switches saved outputs; it does not run a model.</figcaption>
+            <noscript><p>The interactive selector needs JavaScript. The source and historical fixed grids above remain visible. See <a href="evidence.json">the evidence file</a> for all published image paths.</p></noscript>
+          </figure>
+        </section>
+
+        <section id="capacity">
+          <p class="section-number">05 / A controlled diagnostic</p>
+          <h2>Low rank was enough<br>to store the answer.</h2>
+          <p><a href="https://arxiv.org/abs/2106.09685">LoRA</a> adapts a model through low-rank weight updates. After the early GAN LoRA experiments struggled, I asked a narrower question: could a low-rank update represent the historical mapping changes at all?</p>
+          <p>To test that, I decomposed each historical mapping weight difference from the pretrained model using singular value decomposition, then kept only its leading components. This is a post-hoc compression experiment with zero training updates. The original learned blend coefficients were retained, and I separately tested whether to keep the historical biases.</p>
+          <figure class="data-figure">
+            <div class="chart-title">Distance from the original historical outputs</div><p class="chart-subtitle">Mean LPIPS · 12 development inputs · lower means closer to that checkpoint</p>
+            <div class="bar-chart" role="img" aria-label="Rank 32 with historical biases: LPIPS 0.00269. Rank 32 with reset biases: 0.09541. Rank 128 with reset biases: 0.09363.">
+              <div class="bar-row"><span>Rank 32 · retain biases</span><div class="bar-track"><i style="width:2.6925%" class="accent"></i></div><b>0.00269</b></div>
+              <div class="bar-row"><span>Rank 32 · reset biases</span><div class="bar-track"><i style="width:95.4097%"></i></div><b>0.09541</b></div>
+              <div class="bar-row"><span>Rank 128 · reset biases</span><div class="bar-track"><i style="width:93.6292%"></i></div><b>0.09363</b></div>
+            </div>
+            <figcaption><span>Figure 4.</span> Compression measures fidelity to the historical generator, not quality or similarity to the reference photograph. All three variants preserve the historical blend coefficients. Values are from the saved <a href="evidence.json">render audit</a>.</figcaption>
+          </figure>
+          <p>Rank 32 with historical biases produced outputs almost indistinguishable from the original across the four fixed and twelve development samples. Resetting the biases to their pretrained values caused visible changes in lighting, geometry, wheels, and backgrounds. Increasing the rank to 128 did little to recover the missing bias contribution in this diagnostic.</p>
+          <p>This finding made “just increase the rank” a less persuasive next move. The low-rank representation could already approximate this checkpoint closely on the inspected inputs. The unresolved issue was how to <em>learn</em> a useful transformation from the single image. Bias training became a concrete ablation, although its later tested variants did not establish a quality improvement.</p>
+          <p>The distinction matters: compressing a known solution does not demonstrate that gradient descent can discover it. It also preserves the solution’s existing defects. These results support a limited capacity claim on this checkpoint and these inputs, not a general guarantee about low-rank adaptation.</p>
+        </section>
+
+        <section id="metrics">
+          <p class="section-number">06 / A useful failure</p>
+          <h2>The score improved.<br>The images got worse.</h2>
+          <p>A bounded overnight experiment tested mapping-only and mapping-plus-synthesis LoRA, alongside a diagnostic full-mapping control. Across the batch, 18,630 updates took about 7 hours 51 minutes on one Tesla T4. The controller selected a rank-8 mapping-plus-synthesis checkpoint at step 6,000 using numerical screening.</p>
+          <p>On twelve validation inputs, that model moved closer to the target photograph according to <a href="https://arxiv.org/abs/1801.03924">LPIPS</a>. Looking at the full images told a different story.</p>
+          <div class="table-wrap"><table><caption>Same 12 validation inputs · selected checkpoints</caption><thead><tr><th scope="col">Model</th><th scope="col">Target LPIPS</th><th scope="col">Pairwise LPIPS</th></tr></thead><tbody><tr><th scope="row">Historical 2.21</th><td>0.60160</td><td>0.55656</td></tr><tr><th scope="row">Mapping LoRA, rank 32 / 6,000</th><td>0.60823</td><td>0.50117</td></tr><tr><th scope="row">Mapping + synthesis, rank 8 / 6,000</th><td>0.57008</td><td>0.47252</td></tr></tbody></table></div>
+          <p class="small">Target LPIPS measures distance to one training photograph. Pairwise LPIPS measures differences between generated samples. Neither is a standalone quality score, and increasing pairwise distance can also reward artifacts. Measurements use LPIPS-Alex 0.1.4 on content cropped to remove letterbox bars, resized to 192 × 256, and clamped to the display range.</p>
+          <figure class="failure-figure"><a href="assets/overnight-comparison.png" target="_blank" rel="noopener"><img src="assets/overnight-comparison.png" width="2058" height="1722" loading="lazy" alt="All four fixed inputs for each model: historical run 2.21 retains more plausible cars; mapping-only LoRA produces distorted vintage-like shapes; mapping-plus-synthesis LoRA produces severe stripes, embossed edges and malformed windows."></a><figcaption><span>Figure 5.</span> All four fixed samples, with one row per model. The numerically selected model has severe texture and geometry artifacts. The larger sample banks are available in Figure 3; the separate <a href="assets/lora-final24.png" target="_blank" rel="noopener">24-input audit</a> also showed these defects.</figcaption></figure>
+          <p>The selected model produced striping, embossed edges, malformed windows, and repeated brick backgrounds. The rank-32 mapping-only model avoided some of the striping but drifted toward distorted vintage-car shapes. Neither demonstrated an improvement over historical run 2.21.</p>
+          <p>A separate audit on 24 inputs fresh to that selection reinforced the finding: the selected model’s target LPIPS was 0.56726, yet its image defects persisted. Its raw output maximum also reached 2.6033, exceeding the experiment’s 2.5 range guard. Those inputs became development evidence once inspected; they cannot serve as an untouched test set for later decisions.</p>
+          <p>The practical lesson is to inspect the whole bank alongside the metric. A scalar distance can capture a movement toward familiar textures while missing a deterioration in the object that matters. This was one target and one training seed, with incomplete historical training metadata—not an equal-budget benchmark establishing that LoRA is generally worse than full fine-tuning.</p>
+        </section>
+
+        <section id="next">
+          <p class="section-number">07 / Where the investigation went</p>
+          <h2>Make the next question smaller.</h2>
+          <p>The broader project also explored SDXL reference conditioning and LoRA. Development samples showed closer BMW-like geometry, with unresolved diversity and fine-detail tradeoffs. Those experiments use a different pretrained system, and their prompts explicitly name the BMW E46. They are useful context, but they do not establish an improvement to the original StyleGAN2 method.</p>
+          <p>The subsequent GAN investigation turned to <a href="https://genforce.github.io/genda/">GenDA</a>, which studies adaptation through lightweight generator and discriminator components. My implementations explored a shared scale-and-bias transformation in style space, a frozen discriminator feature backbone with a trainable output classifier, and different scopes for the final RGB layer.</p>
+          <p>Recent controls asked whether classifier initialization could explain a failure to transfer sunglasses. At 5,000 updates, the random-initialized and source-initialized classifier variants both produced zero convincing dark-sunglasses transfers among the sixteen inspected inputs at each of two truncation settings. They changed the character of the artifacts—yellow-green and expression drift versus severe magenta darkening—without fixing the task.</p>
+          <p>These are preliminary, subjective development observations. The runs covered 20,000 real-image presentations, one tenth of the referenced 200,000-presentation horizon. They used one photographic reference derived from a published figure, one training seed, and disclosed implementation assumptions. The source-initialized classifier is a deliberate departure from the documented random initialization. These controls do not constitute an exact GenDA reproduction or a contradiction of its published results.</p>
+          <p>The next planned control completes a comparison between classifier initialization and whether the final RGB layer trains. That experiment is pending as of this post. Its purpose is to isolate one interaction before changing the architecture again.</p>
+          <div class="takeaway closing"><p class="eyebrow">What I take forward</p><p>Preserve the source knowledge.<br>Separate capacity from optimization.<br>Judge the distribution you actually generate.</p></div>
+          <p>The original idea remains compelling: reuse a strong generative prior and ask a small, carefully chosen part of the system to adapt. The evidence so far shows both its promise and its limits. The recovered model transfers aspects of a photograph while retaining variation; it does not reliably preserve the target vehicle’s identity. The most useful progress has come from making those limits measurable enough to design the next experiment.</p>
+        </section>
+
+        <section id="evidence">
+          <p class="section-number">08 / Evidence &amp; context</p>
+          <h2>A record you can inspect</h2>
+          <p>This is a research retrospective and development report, not a peer-reviewed paper or a state-of-the-art claim. All displayed samples are existing experiment artifacts. No figure uses newly generated illustrative images, retouching, or color correction. The interactive viewer includes every image in each selected bank.</p>
+          <ul class="evidence-list"><li><a href="evidence.json">Measurements and provenance</a> — extracted numbers, experimental caveats, source-file hashes, and published asset hashes.</li><li><a href="assets/rank-comparison.png" target="_blank" rel="noopener">Compression comparison at full resolution</a> — historical outputs, rank-32 compression, and the bias-reset control.</li><li><a href="assets/lora-final24.png" target="_blank" rel="noopener">The complete 24-input LoRA audit</a> — fresh to the original checkpoint selection, now development evidence.</li></ul>
+          <p>The release contains the article, saved figures, and selected evidence. Training checkpoints, original notebook archives, account credentials, and private run logs are not part of this blog release. The later photographic GenDA figure crops are not redistributed here.</p>
+          <h3>Research that informed this work</h3>
+          <ol class="references">
+            <li><a href="https://arxiv.org/abs/1912.04958">Karras et al. — Analyzing and Improving the Image Quality of StyleGAN.</a> CVPR 2020. The pretrained generative backbone. <a href="https://github.com/NVlabs/stylegan2">Official implementation</a>; <a href="https://github.com/rosinality/stylegan2-pytorch">Rosinality’s PyTorch implementation</a> underlies the restoration.</li>
+            <li><a href="https://arxiv.org/abs/2106.09685">Hu et al. — LoRA: Low-Rank Adaptation of Large Language Models.</a> The low-rank adaptation framework explored in the later GAN experiments.</li>
+            <li><a href="https://arxiv.org/abs/1801.03924">Zhang et al. — The Unreasonable Effectiveness of Deep Features as a Perceptual Metric.</a> CVPR 2018. The source of LPIPS, used here as a diagnostic.</li>
+            <li><a href="https://genforce.github.io/genda/">Yang et al. — One-Shot Generative Domain Adaptation.</a> The GenDA project and paper, motivating the later lightweight-adapter controls.</li>
+            <li><a href="https://github.com/mit-han-lab/data-efficient-gans">Zhao et al. — Differentiable Augmentation for Data-Efficient GAN Training.</a> The augmentation code used in the original project and restoration.</li>
+          </ol>
+          <details><summary>Presentation and artifact notes</summary><p>The page follows the figure-led research communication of <a href="https://www.instruct-pix2pix.timothybrooks.com/">InstructPix2Pix</a>, the <a href="https://github.com/NVlabs/stylegan2">StyleGAN2 release</a>, and Google’s <a href="https://research.google/blog/transformer-a-novel-neural-network-architecture-for-language-understanding/">Transformer research post</a>. The writing, layout, and method diagram are prepared for this project. No affiliation with those authors is implied.</p><p>The reference photograph comes from the original project asset. Its separate authorship and license are not established in the recovered records; this release grants no new license to that photograph or third-party model materials. Sample grids are byte-for-byte copies of saved artifacts. Figure captions distinguish reconstructed historical inference, post-hoc compression, and newly trained adapters. Historical execution metadata is incomplete, and comparisons are not a claim of bitwise historical reproduction.</p></details>
+        </section>
+      </article>
+    </div>
+  </main>
+  <footer><p>Sean Chen <span>·</span> Single-image GAN adaptation</p><a href="#top">Back to top ↑</a></footer>
+</body>
+</html>

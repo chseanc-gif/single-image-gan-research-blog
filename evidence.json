@@ -1,0 +1,654 @@
+{
+  "title": "One Image, Many Possibilities: Revisiting single-image GAN adaptation",
+  "author": "Sean Chen",
+  "snapshot_date": "2026-10-14",
+  "timezone": "America/Los_Angeles",
+  "status": "Research retrospective and development report; no peer-reviewed or state-of-the-art claim.",
+  "historical": {
+    "torch": "2.14.1",
+    "device": "cpu",
+    "gpu": null,
+    "sampling": "Four saved baseline latents; fixed synthesis noise; truncation 1; display range [-1, 1].",
+    "reference_mapping": "Official NVIDIA car config-f. The separate original reference mapping was not included in the archive. All 137 non-mapping tensors of both recovered generators match the official model exactly.",
+    "architecture": "Combined mapping w=a*w_trained+b*w_reference from notebook cell 17; consistent with both saved a/b parameter sets. Per-run source files were not included in the ZIP.",
+    "lora_trained": false,
+    "models": [
+      {
+        "name": "pretrained",
+        "grid": "pretrained-grid.png",
+        "sample_count": 4,
+        "raw_min": -1.221207857131958,
+        "raw_max": 1.4089207649230957
+      },
+      {
+        "name": "historical-1",
+        "grid": "historical-1-grid.png",
+        "sample_count": 4,
+        "raw_min": -1.1468958854675293,
+        "raw_max": 1.4317655563354492
+      },
+      {
+        "name": "historical-2.21",
+        "grid": "historical-2.21-grid.png",
+        "sample_count": 4,
+        "raw_min": -1.1589189767837524,
+        "raw_max": 1.3733112812042236
+      },
+      {
+        "name": "restoration-step11",
+        "grid": "restoration-step11-grid.png",
+        "sample_count": 4,
+        "raw_min": -1.2201759815216064,
+        "raw_max": 1.4042067527770996
+      }
+    ]
+  },
+  "compression": {
+    "records": [
+      {
+        "mode": "historical",
+        "rank": 512,
+        "historical_bias": true,
+        "bank": "fixed",
+        "count": 4,
+        "lpips_to_historical_mean": 0.0,
+        "lpips_to_historical_each": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "mode": "historical",
+        "rank": 512,
+        "historical_bias": true,
+        "bank": "development",
+        "count": 12,
+        "lpips_to_historical_mean": 0.0,
+        "lpips_to_historical_each": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "mode": "rank32-historical-bias",
+        "rank": 32,
+        "historical_bias": true,
+        "bank": "fixed",
+        "count": 4,
+        "lpips_to_historical_mean": 0.0029537987138610333,
+        "lpips_to_historical_each": [
+          0.0007709936471655965,
+          0.00781977828592062,
+          0.0011274556163698435,
+          0.0020969673059880733
+        ]
+      },
+      {
+        "mode": "rank32-historical-bias",
+        "rank": 32,
+        "historical_bias": true,
+        "bank": "development",
+        "count": 12,
+        "lpips_to_historical_mean": 0.0026925210646974542,
+        "lpips_to_historical_each": [
+          0.006713626440614462,
+          0.0023261636961251497,
+          0.0008328749681822956,
+          0.0015485036419704556,
+          0.004669975955039263,
+          0.0024120970629155636,
+          0.0014611580409109592,
+          0.002045601839199662,
+          0.0026799580082297325,
+          0.005346303805708885,
+          0.0005673681735061109,
+          0.0017066211439669132
+        ]
+      },
+      {
+        "mode": "rank32-frozen-bias",
+        "rank": 32,
+        "historical_bias": false,
+        "bank": "fixed",
+        "count": 4,
+        "lpips_to_historical_mean": 0.1292871218174696,
+        "lpips_to_historical_each": [
+          0.15688814222812653,
+          0.12376902997493744,
+          0.09416919201612473,
+          0.1423221230506897
+        ]
+      },
+      {
+        "mode": "rank32-frozen-bias",
+        "rank": 32,
+        "historical_bias": false,
+        "bank": "development",
+        "count": 12,
+        "lpips_to_historical_mean": 0.09540965252866347,
+        "lpips_to_historical_each": [
+          0.1983802765607834,
+          0.060318417847156525,
+          0.10193593055009842,
+          0.09682727605104446,
+          0.0666290819644928,
+          0.05473187193274498,
+          0.07540666311979294,
+          0.11480419337749481,
+          0.1080506220459938,
+          0.11555834114551544,
+          0.06702570617198944,
+          0.0852474495768547
+        ]
+      },
+      {
+        "mode": "rank128-frozen-bias",
+        "rank": 128,
+        "historical_bias": false,
+        "bank": "fixed",
+        "count": 4,
+        "lpips_to_historical_mean": 0.12676303274929523,
+        "lpips_to_historical_each": [
+          0.15507422387599945,
+          0.12045039236545563,
+          0.09199338406324387,
+          0.139534130692482
+        ]
+      },
+      {
+        "mode": "rank128-frozen-bias",
+        "rank": 128,
+        "historical_bias": false,
+        "bank": "development",
+        "count": 12,
+        "lpips_to_historical_mean": 0.09362916834652424,
+        "lpips_to_historical_each": [
+          0.19298534095287323,
+          0.0608755499124527,
+          0.10369934141635895,
+          0.09473300725221634,
+          0.06421241909265518,
+          0.053054243326187134,
+          0.07346702367067337,
+          0.11279121786355972,
+          0.10687299072742462,
+          0.1113361269235611,
+          0.06575103849172592,
+          0.0837717205286026
+        ]
+      },
+      {
+        "mode": "blend-only",
+        "rank": 0,
+        "historical_bias": false,
+        "bank": "fixed",
+        "count": 4,
+        "lpips_to_historical_mean": 0.613123744726181,
+        "lpips_to_historical_each": [
+          0.6490206122398376,
+          0.6373271942138672,
+          0.6026894450187683,
+          0.563457727432251
+        ]
+      },
+      {
+        "mode": "blend-only",
+        "rank": 0,
+        "historical_bias": false,
+        "bank": "development",
+        "count": 12,
+        "lpips_to_historical_mean": 0.5768893534938494,
+        "lpips_to_historical_each": [
+          0.6992366313934326,
+          0.5280265808105469,
+          0.5387128591537476,
+          0.5977564454078674,
+          0.6350172758102417,
+          0.49011287093162537,
+          0.5723303556442261,
+          0.6236037611961365,
+          0.5480379462242126,
+          0.517681896686554,
+          0.5542202591896057,
+          0.6179353594779968
+        ]
+      }
+    ],
+    "elapsed_cpu_seconds": 42.42917591612786,
+    "warning": "Not newly trained LoRA; historical learned mixing is retained. No improvement claim."
+  },
+  "validation_comparison": [
+    {
+      "model": "Historical 2.21",
+      "bank": "validation12",
+      "target_lpips": 0.6016010840733846,
+      "pairwise_lpips": 0.5565585737878626
+    },
+    {
+      "model": "mapping-r32",
+      "step": 6000,
+      "bank": "validation12",
+      "target_lpips": 0.6082272926966349,
+      "pairwise_lpips": 0.5011737220215075
+    },
+    {
+      "model": "both-r8",
+      "step": 6000,
+      "bank": "validation12",
+      "target_lpips": 0.5700784921646118,
+      "pairwise_lpips": 0.4725246357195305
+    }
+  ],
+  "lpips_protocol": "LPIPS-Alex 0.1.4; content crop -> 192x256, range clamped [-1,1]",
+  "overnight_batch": {
+    "training_updates": 18630,
+    "controller_seconds": 28243.248155856,
+    "accelerator": "One NVIDIA Tesla T4",
+    "selection": {
+      "id": "both-r8",
+      "step": 6000,
+      "note": "Selected by proxy metrics. Not proof of quality or superiority to historical weights."
+    },
+    "fresh24_audit": {
+      "count": 24,
+      "metrics": {
+        "phase": "evaluation",
+        "step": 6000,
+        "sample_bank": "holdout",
+        "target_lpips_mean": 0.5672561178604761,
+        "target_lpips_each": [
+          0.5598928928375244,
+          0.5719755291938782,
+          0.6351103186607361,
+          0.6212505102157593,
+          0.5794814825057983,
+          0.5316356420516968,
+          0.5510637760162354,
+          0.5624313950538635,
+          0.5747989416122437,
+          0.5183767080307007,
+          0.5421082377433777,
+          0.5589094161987305,
+          0.5945289731025696,
+          0.5767976641654968,
+          0.592366635799408,
+          0.5344715118408203,
+          0.5407791137695312,
+          0.5592446327209473,
+          0.5692071318626404,
+          0.5276341438293457,
+          0.5882933139801025,
+          0.5726900100708008,
+          0.5909022092819214,
+          0.5601966381072998
+        ],
+        "pairwise_lpips": 0.4676683351829432,
+        "out_of_range_fraction": 0.1653275489807129,
+        "raw_min": -1.9541337490081787,
+        "raw_max": 2.60329532623291,
+        "note": "Lower target distance can also mean collapse; inspect diversity and images."
+      },
+      "assessment": "All 24 inspected. Severe striping and embossed edges affect every sample; warped windows, repeated brick walls and reduced car/scene variety. Inferior to matching historical 2.21 outputs.",
+      "passes_original_raw_range_guard": false,
+      "raw_range_guard_note": "Final-bank raw max 2.6033 exceeds the original 2.5 threshold even though the 12 validation bank passed at step 6000."
+    },
+    "limitations": [
+      "Target LPIPS can reward repetitive textures or collapse; it is not visual quality.",
+      "Twelve validation latents participated in selection; only final 24 were fresh to selection.",
+      "One training seed and one target; historical training duration and exact original reference model are unknown.",
+      "Short 750-step full-mapping control is not an equal-budget ablation.",
+      "Four fixed latents match bitwise; same-seed CPU-generated validation/final latents differ by <=1.55e-6 across local/Kaggle environments. CPU/GPU inference is not bitwise reproducible.",
+      "No FID claim. Historical checkpoints stayed local."
+    ]
+  },
+  "genda_development_controls": {
+    "random": {
+      "classifier_initialization": "random",
+      "endpoint_counts": {
+        "1.0": {
+          "coherent_dark_sunglasses": 0,
+          "partial_or_defective_eyewear": 6,
+          "no_coherent_eyewear": 10,
+          "marked_tonal_artifact": 16,
+          "new_partial_eyewear": 3
+        },
+        "0.7": {
+          "coherent_dark_sunglasses": 0,
+          "partial_or_defective_eyewear": 6,
+          "no_coherent_eyewear": 10,
+          "marked_tonal_artifact": 16,
+          "new_partial_eyewear": 4
+        }
+      },
+      "coverage": {
+        "fixed_inputs": 4,
+        "development_inputs": 12,
+        "betas": [
+          1.0,
+          0.7
+        ],
+        "steps": [
+          0,
+          500,
+          1000,
+          2000,
+          3000,
+          4000,
+          5000
+        ],
+        "control_images": 224,
+        "primary_native_sheets": 24,
+        "secondary_native_sheets": 8,
+        "all_sheets_visually_reviewed": 32,
+        "previews_independently_verified": 56,
+        "all_preview_pixels_covered_by_native_review": true
+      },
+      "compute": {
+        "updates": 5000,
+        "batch": 4,
+        "real_presentations": 20000,
+        "paper_horizon_fraction": 0.1
+      },
+      "interpretation": "Only classifier initialization differs from photographic zerohead. Random head shifts red/orange artifacts to yellow-green and more pervasive smile/texture changes. No reliable improvement in target sunglasses, resemblance or plausibility. Zerohead endpoint dark1(borderline)/partial6/none9 atbeta1 and dark0/partial7/none9 atbeta0.7; current random dark0/partial6/none10 atboth. Single-reviewer counts, not blinded or statistical quality metrics.",
+      "limitations": [
+        "Published figure crop is not the original author training asset; no exact reproduction claim.",
+        "Authors label the cell as target; identity, training-set membership and original photograph license are not independently established. Use privately for this diagnostic; do not claim held-out photographic reference.",
+        "All banks remain development. No known generating-latent overlap, unlike synthetic selftarget fixed0.",
+        "Public source weights, exact classifier initialization, ToRGB scope, Adam and augmentation remain unmatched/disclosed assumptions. Group1/fullRGB are controls, not confirmed author settings.",
+        "One photographic reference and one seed; not a multi-reference publication benchmark or historical car comparison.",
+        "Random-head initialization is documented in the supplement, but this exact source/scaling/seed is not. Prior synthetic initialization result cannot be generalized to photographs without this contrast; no claim that it will fix failure.",
+        "Frozen endpoint checks use runtime digests against independently verified public-source digests; compact states do not contain frozen weights. Saved RNG equality is not a bitwise CUDA trajectory replay.",
+        "Subjective single-reviewer development-bank descriptions, no blinded study or confidence intervals. Not a new multi-reference evaluation or historical-car comparison."
+      ],
+      "reference_image_redistributed": false
+    },
+    "source_pretrained": {
+      "classifier_initialization": "source_pretrained",
+      "endpoint_counts": {
+        "1.0": {
+          "coherent_dark_sunglasses": 0,
+          "partial_or_defective_eyewear": 5,
+          "no_coherent_eyewear": 11,
+          "marked_tonal_artifact": 16,
+          "new_unambiguous_partial_eyewear": 2,
+          "ambiguous_development0": 1,
+          "sensitivity_if_development0_counted_partial": {
+            "partial_or_defective_eyewear": 6,
+            "no_coherent_eyewear": 10
+          }
+        },
+        "0.7": {
+          "coherent_dark_sunglasses": 0,
+          "partial_or_defective_eyewear": 5,
+          "no_coherent_eyewear": 11,
+          "marked_tonal_artifact": 16,
+          "new_unambiguous_partial_eyewear": 3,
+          "ambiguous_development0": 1,
+          "sensitivity_if_development0_counted_partial": {
+            "partial_or_defective_eyewear": 6,
+            "no_coherent_eyewear": 10
+          }
+        }
+      },
+      "coverage": {
+        "fixed_inputs": 4,
+        "development_inputs": 12,
+        "betas": [
+          1.0,
+          0.7
+        ],
+        "steps": [
+          0,
+          500,
+          1000,
+          2000,
+          3000,
+          4000,
+          5000
+        ],
+        "control_images": 224,
+        "primary_native_sheets": 24,
+        "secondary_native_sheets": 8,
+        "all_sheets_visually_reviewed": 32,
+        "previews_independently_verified": 56,
+        "all_preview_pixels_covered_by_native_review": true
+      },
+      "compute": {
+        "updates": 5000,
+        "batch": 4,
+        "real_presentations": 20000,
+        "paper_horizon_fraction": 0.1
+      },
+      "interpretation": "Only classifier initialization differs from photographic original-random/fullRGB. Pretrained output produces purple/magenta darkening rather than yellow-green/grey and widespread smile expansion. Less smile drift is insufficient: all16 have severe tonal defects and no convincing reference dark sunglasses. Initialization influences failure direction but retaining a pretrained head is not a cure. Direction, norm and bias change together; no unique causal attribution.",
+      "limitations": [
+        "Published figure crop is not the original author training asset; no exact reproduction claim.",
+        "Authors label the cell as target; identity, training-set membership and original photograph license are not independently established. Use privately for this diagnostic; do not claim held-out photographic reference.",
+        "All banks remain development. No known generating-latent overlap, unlike synthetic selftarget fixed0.",
+        "Public source weights, exact classifier initialization, ToRGB scope, Adam and augmentation remain unmatched/disclosed assumptions. Group1/fullRGB are controls, not confirmed author settings.",
+        "One photographic reference and one seed; not a multi-reference publication benchmark or historical car comparison.",
+        "Random-head initialization is documented in the supplement, but this exact source/scaling/seed is not. Prior synthetic initialization result cannot be generalized to photographs without this contrast; no claim that it will fix failure.",
+        "Pretrained-head initialization deliberately differs from the documented random classifier. It changes learned direction, norm and bias together; a benefit would not isolate their causal contribution. This is an established transfer-learning control, not presumed novelty.",
+        "Frozen endpoint checks use runtime digests against independently verified public-source digests; compact states do not contain frozen weights. Saved RNG equality is not a bitwise CUDA trajectory replay.",
+        "Subjective single-reviewer development-bank descriptions; no blinded study or confidence intervals. Dev0 eyewear is ambiguous under severe color/shadow failure; category sensitivity disclosed. Not a multi-reference publication evaluation or historical-car comparison."
+      ],
+      "reference_image_redistributed": false
+    }
+  },
+  "source_records": [
+    {
+      "key": "historical_inference",
+      "original_project_path": "runs/historical-comparison-local/inference-report.json",
+      "sha256": "f5499cdc1aab63e43dae28ca89efa60efdad022425dc74f6a5ff97957f92a0e4",
+      "included_in_release": false
+    },
+    {
+      "key": "historical_metrics",
+      "original_project_path": "runs/lora-historical-benchmark/metrics.json",
+      "sha256": "b203cf2194cac385b51fd842d8bea0db601a3587f172f4adf173db2b53e19e11",
+      "included_in_release": false
+    },
+    {
+      "key": "compression",
+      "original_project_path": "runs/lora-historical-rank-audit/render-audit.json",
+      "sha256": "88fc3da3427a05ec94b4c15e43ca76d57b2ef0715cbe94dad72bd626c79bdaa8",
+      "included_in_release": false
+    },
+    {
+      "key": "compression_visual_review",
+      "original_project_path": "runs/lora-historical-rank-audit/visual-review.json",
+      "sha256": "accc1c52ed6d8f5a0541ddc09c6a433b44267b6ebeb3b19d9d07b9d25765ae3a",
+      "included_in_release": false
+    },
+    {
+      "key": "overnight",
+      "original_project_path": "runs/lora-campaign/overnight-review.json",
+      "sha256": "513fab6bf2d957f0690c95abb5abcd33f17b9303a6b10696c5cf93df1072277c",
+      "included_in_release": false
+    },
+    {
+      "key": "genda_random",
+      "original_project_path": "runs/lora-campaign/genda-sunglasses-randomhead-group1-5000-v1-review/visual-review.json",
+      "sha256": "1998b19990628dcfaac9dc45b7b46736673719c6942b5ae026fc9ff08f8aa62a",
+      "included_in_release": false
+    },
+    {
+      "key": "genda_source",
+      "original_project_path": "runs/lora-campaign/genda-sunglasses-sourcehead-group1-5000-v1-review/visual-review.json",
+      "sha256": "865edcb9d8f90f62c8c959e37e4d010f4651ce223b6434dd86fd46033de053f8",
+      "included_in_release": false
+    },
+    {
+      "key": "method",
+      "original_project_path": "src/single_gan/models.py",
+      "sha256": "7f7954ec9767fb3fb6cd9d7e5395498d672cabe0e9504ef6944314016c2f2982",
+      "included_in_release": false
+    },
+    {
+      "key": "restoration_record",
+      "original_project_path": "RESTORATION_STATUS.md",
+      "sha256": "bc9d6a65b5891366d0616732a69e821d991dd04e11575a9238a4e25d26f49a10",
+      "included_in_release": false
+    },
+    {
+      "key": "overview",
+      "original_project_path": "README.md",
+      "sha256": "1c3b34fe328333afd0869ca22d0b9ab3c471093cfa088c6dcf196d810c7119db",
+      "included_in_release": false
+    }
+  ],
+  "published_assets": [
+    {
+      "published_path": "assets/reference.jpg",
+      "original_project_path": "assets/e46.jpg",
+      "sha256": "dcfca4ba765e44a636eb50b923cd29d90cd91fe0a61ba8cbf2dfd10ed3629bd4",
+      "bytes": 49242,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/source-fixed.png",
+      "original_project_path": "runs/lora-historical-benchmark/pretrained-samples.png",
+      "sha256": "ee6ff7fa818a53f126140f2e4f2f607311d084cbe923af3fa406f77549f6f2ae",
+      "bytes": 1295855,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/source-development.png",
+      "original_project_path": "runs/lora-historical-benchmark/pretrained-holdout.png",
+      "sha256": "c82fcfa9313dcc103563958fe9a6cde82e1a1d1c1cc7cf850ea75e4b9a7b7e4d",
+      "bytes": 3664338,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/historical-fixed.png",
+      "original_project_path": "runs/lora-historical-rank-audit/historical-fixed.png",
+      "sha256": "ced36961be6e60bcf91efb0c6ed213fa7921430e02fe9227ef41eb85ed3ce449",
+      "bytes": 1594982,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/historical-development.png",
+      "original_project_path": "runs/lora-historical-rank-audit/historical-development.png",
+      "sha256": "0a595113a564c4faebbadb5da0a8376062ee028087577ee47d1f6476d0a658f7",
+      "bytes": 4519479,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/rank32-fixed.png",
+      "original_project_path": "runs/lora-historical-rank-audit/rank32-historical-bias-fixed.png",
+      "sha256": "ff79e569cfbe0932d50098cebc33cdd689b8249a29f6e9a9cb3504d981c74f68",
+      "bytes": 1596196,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/rank32-development.png",
+      "original_project_path": "runs/lora-historical-rank-audit/rank32-historical-bias-development.png",
+      "sha256": "eefa94b6db219cf667d79116b4c62a5aefed6071338812f6d705900528012679",
+      "bytes": 4522167,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/reset-fixed.png",
+      "original_project_path": "runs/lora-historical-rank-audit/rank32-frozen-bias-fixed.png",
+      "sha256": "49c5d1063fdb71b23d09a647dc5e575c7137e9f8adace67dc1b1be358154a68c",
+      "bytes": 1561298,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/reset-development.png",
+      "original_project_path": "runs/lora-historical-rank-audit/rank32-frozen-bias-development.png",
+      "sha256": "1dd5785de09578702f30f807bd58e6155fcf1757b0b31bede77b2cb907a64c3f",
+      "bytes": 4412189,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/mapping-fixed.png",
+      "original_project_path": "runs/kaggle-lora-overnight-v1/lora-experiment/overnight/mapping-r32/evaluation-006000/samples-006000.png",
+      "sha256": "2a2f05f406dea7eb3808eb5b1a95353798f43a4ce47506dce624f432e8d721f0",
+      "bytes": 1593744,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/mapping-development.png",
+      "original_project_path": "runs/kaggle-lora-overnight-v1/lora-experiment/overnight/mapping-r32/evaluation-006000/holdout-006000.png",
+      "sha256": "5c448b68bdedcbe474d820e81675a1b58db1c77c5cc47e96a3ac1eb2594d744a",
+      "bytes": 4654534,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/both-fixed.png",
+      "original_project_path": "runs/kaggle-lora-overnight-v1/lora-experiment/overnight/both-r8/evaluation-006000/samples-006000.png",
+      "sha256": "277097c4258bef6cd5c10be39e8b4704d4d47cf5818487e8d68c3f92c2c6d485",
+      "bytes": 1747578,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/both-development.png",
+      "original_project_path": "runs/kaggle-lora-overnight-v1/lora-experiment/overnight/both-r8/evaluation-006000/holdout-006000.png",
+      "sha256": "db719b44d85d239a105f60e17d8477ca1573813690a313c40a42247160b5fdaf",
+      "bytes": 5113090,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/overnight-comparison.png",
+      "original_project_path": "runs/lora-campaign/overnight-fixed-comparison.png",
+      "sha256": "f40de9f923b4aa78f211da4fe1f1572853c9fc4a379434532a230a78f2f9aee7",
+      "bytes": 4962677,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/rank-comparison.png",
+      "original_project_path": "runs/lora-historical-rank-audit/fixed-comparison.png",
+      "sha256": "b75a6c24319c0332866eca5483b269c8f683da132210d2a0695d97602f1e0863",
+      "bytes": 4778243,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/lora-final24.png",
+      "original_project_path": "runs/kaggle-lora-overnight-v1/lora-experiment/overnight/final-unseen/holdout-006000.png",
+      "sha256": "4692f5ad6c33ad0b315a7861513790120ab931983a4598e83509a5db8516ab1b",
+      "bytes": 10350072,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/historical-0.png",
+      "original_project_path": "runs/historical-comparison-local/historical-2.21-sample-00.png",
+      "sha256": "5a16d853c333eb833240384f36cbd5fe1a391f93518391c33da30b603eefe26c",
+      "bytes": 401596,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/historical-1.png",
+      "original_project_path": "runs/historical-comparison-local/historical-2.21-sample-01.png",
+      "sha256": "a2e0760defd4d07fad7a687dc260347a8cbae897435ec5671dac23837e77aa81",
+      "bytes": 426175,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/historical-2.png",
+      "original_project_path": "runs/historical-comparison-local/historical-2.21-sample-02.png",
+      "sha256": "93f19bd7b26407c1abc9bfc558b9144faa3ae2325dec09b02a55f77d8deffef7",
+      "bytes": 353865,
+      "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/historical-3.png",
+      "original_project_path": "runs/historical-comparison-local/historical-2.21-sample-03.png",
+      "sha256": "638cce07184c2905f46af2cda321832b707cd322a11328e70c9f06279781773e",
+      "bytes": 382841,
+      "transformation": "none; byte-for-byte copy"
+    }
+  ],
+  "disclosure": "Selected factual extracts and unchanged experiment figures only. Source records, checkpoints, notebooks, private run logs and credentials are not included. All figures represent previously saved outputs; the vector method diagram is explanatory. The original reference photograph has no separately verified authorship/license in recovered records; no new image license is granted."
+}
