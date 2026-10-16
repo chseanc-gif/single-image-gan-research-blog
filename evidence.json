@@ -548,6 +548,18 @@
       "original_project_path": "src/single_gan/genda_augmentation.py",
       "sha256": "c05e3fc7c8e4cb3b61f0c0ce303393b5f16af2e0fef89302ff5df6b6572307f2",
       "included_in_release": false
+    },
+    {
+      "key": "publication_samples16_report",
+      "original_project_path": "runs/research-blog-samples16-v1/inference-report.json",
+      "sha256": "c21c1499facb0b2ece5a142c210e91835cc02dc2f4bb298fb13c700d06c7945d",
+      "included_in_release": false
+    },
+    {
+      "key": "publication_samples16_script",
+      "original_project_path": "scripts/render_blog_samples16.py",
+      "sha256": "96032d3f467e1e74d53d76a4e0bab82f2b0ab099bddd29adaacfc156fecba020",
+      "included_in_release": false
     }
   ],
   "published_assets": [
@@ -739,9 +751,72 @@
       "sha256": "9e75319cf45d231adcdbdbb4e1a1f59d9b2464cbc57a339767bc89454e1723a6",
       "bytes": 773696,
       "transformation": "none; byte-for-byte copy of saved paired diagnostic figure"
+    },
+    {
+      "published_path": "assets/source-new16.png",
+      "original_project_path": "runs/research-blog-samples16-v1/source-new16.png",
+      "sha256": "19c5655b713f12a0431d3911bda77f8736a2717d20e221780f6fe4f846c040b1",
+      "bytes": 4651805,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
+    },
+    {
+      "published_path": "assets/historical-new16.png",
+      "original_project_path": "runs/research-blog-samples16-v1/historical-new16.png",
+      "sha256": "bf8d8c165548357deb72dfec65959e4d75491c57c26397a6065048c3c874b9bf",
+      "bytes": 6192427,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
+    },
+    {
+      "published_path": "assets/historical1-new16.png",
+      "original_project_path": "runs/research-blog-samples16-v1/historical1-new16.png",
+      "sha256": "7ed6b85dc0ca4bad5c1fbf20b69d393451965f7f26df0ae898d3cc70d832c8df",
+      "bytes": 5733226,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
+    },
+    {
+      "published_path": "assets/historical1-fixed.png",
+      "original_project_path": "runs/research-blog-samples16-v1/historical1-fixed.png",
+      "sha256": "74b3f38a8dda622c4923311604efd96baad0bb84c92c42c3a778343ce72e35ec",
+      "bytes": 1458226,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
+    },
+    {
+      "published_path": "assets/historical1-development.png",
+      "original_project_path": "runs/research-blog-samples16-v1/historical1-development.png",
+      "sha256": "5f71f3e1b78010d2dd812ae9ecde33c6d27b13370496f56d61650071acc6322e",
+      "bytes": 4231694,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
+    },
+    {
+      "published_path": "assets/rank32-new16.png",
+      "original_project_path": "runs/research-blog-samples16-v1/rank32-new16.png",
+      "sha256": "2224407102665ac44ff27e55862339dcf674e96b840649b5c9bcecb877c10483",
+      "bytes": 6203140,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
+    },
+    {
+      "published_path": "assets/reset-new16.png",
+      "original_project_path": "runs/research-blog-samples16-v1/reset-new16.png",
+      "sha256": "ce241c0222f1e158112071b654918f248930e43521f354b752258293798c9389",
+      "bytes": 6049284,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
+    },
+    {
+      "published_path": "assets/mapping-new16.png",
+      "original_project_path": "runs/research-blog-samples16-v1/mapping-new16.png",
+      "sha256": "5db63a9a4fbcf37164ba6585798711dc2f2b920278cafaa10e721d23b12ec9a2",
+      "bytes": 6167264,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
+    },
+    {
+      "published_path": "assets/both-new16.png",
+      "original_project_path": "runs/research-blog-samples16-v1/both-new16.png",
+      "sha256": "b66f2e29e07ccc0159a4ae74c006ed8093a6cc284cf0c58643654eefac5206fa",
+      "bytes": 6895087,
+      "transformation": "none; byte-for-byte copy of new inference grid from existing weights"
     }
   ],
-  "disclosure": "Selected factual extracts and unchanged experiment figures only. Source records, checkpoints, notebooks, private run logs and credentials are not included. All figures represent previously saved outputs; the vector method diagram is explanatory. The original reference photograph has no separately verified authorship/license in recovered records; no new image license is granted.",
+  "disclosure": "Selected factual extracts and unchanged experiment figures only. Source records, checkpoints, notebooks, private run logs and credentials are not included. Figures are unchanged saved experiment outputs or newly rendered inference from existing trained weights, as documented in their captions and publication_samples16; the vector method diagram is explanatory. The original reference photograph has no separately verified authorship/license in recovered records; no new image license is granted.",
   "augmentation_section_added": "2026-10-16",
   "original_augmentation": {
     "provenance": "Original notebook cell 33 (zero-indexed), two-input discriminator cell 29, training loop cell 45; restored SingleImage and AdaptedDiscriminator implementations.",
@@ -958,5 +1033,150 @@
       "car_geometry": "augment rows 64:448, then restore 64-pixel black top/bottom borders",
       "caveat": "Explicit choices for GenDA-inspired controls; not the original recipe or confirmed unavailable GenDA implementation."
     }
+  },
+  "publication_samples16_added": "2026-10-16",
+  "publication_samples16": {
+    "status": "rendered",
+    "seed": 2026101601,
+    "new_bank_count": 16,
+    "torch": "2.2.2",
+    "device": "cpu",
+    "cpu_threads": 2,
+    "optimizer_updates": 0,
+    "weights_uploaded": false,
+    "sampling": "First 16 sequential standard-normal 512-dimensional latent vectors from the stated CPU seed, shared exactly by all seven models; no selection.",
+    "synthesis_noise": "Fixed saved official-source noise buffers; no random noise resampling.",
+    "truncation": 1,
+    "display": "Global fixed [-1,1] to [0,1], clipped for display, no per-image normalization; 512x512 samples, borders retained.",
+    "reference_mapping": "Official source mapping plus each historical trained mapping and its saved a/b coefficients, following notebook cell 17.",
+    "reserved_final_bank_used": false,
+    "new_bank_does_not_match_old_fixed_or_development_latents": true,
+    "purpose": "Additional illustrative publication samples. Not a held-out benchmark or new training result; prior quantitative results use their original banks.",
+    "base_sha256": "397a6b7f811d75f83c5c26ed5ee3cfc0c8a62158e16b2e934201a6eb28d0f995",
+    "historical_payload_sha256": "9ad2de2b50f7a751da0c6f3ba36a8c6fe5bbfc10397d6387d3685c433559458c",
+    "latent_file_sha256": "21bd63979ea584eceba38575ca1b87d1776a8a7e2cf279c7db0e1301b0979ed2",
+    "latent_tensor_sha256": "f87910c23158d6dd698ed9aa9687abc7e46ce759b4f1d211c4e96418e9794ad8",
+    "adapter_sources": {
+      "mapping": {
+        "path": "runs/kaggle-lora-overnight-v1/lora-experiment/overnight/mapping-r32/evaluation-006000/adapter.pt",
+        "sha256": "c5c74bab2b47946d4e7530e5602120034aedd20421053fe9d023d553f77b9ec4",
+        "step": 6000
+      },
+      "both": {
+        "path": "runs/kaggle-lora-overnight-v1/lora-experiment/overnight/both-r8/evaluation-006000/adapter.pt",
+        "sha256": "32f9f5dce487c4368d3220f8f0af63b7c2763ab926ae3f0afea238c23b49203c",
+        "step": 6000
+      }
+    },
+    "render_script_sha256": "96032d3f467e1e74d53d76a4e0bab82f2b0ab099bddd29adaacfc156fecba020",
+    "source_sha256": {
+      "src/single_gan/models.py": "7f7954ec9767fb3fb6cd9d7e5395498d672cabe0e9504ef6944314016c2f2982",
+      "src/single_gan/inference.py": "18f282f54b1177d0c63a9f569ec816bce6f74419a388b3f9d09ffffb28aa96d4",
+      "src/single_gan/vendor/model.py": "6bb53993db293330c224d47897c135b23c423e5da601465ff8a9e16a641542b4",
+      "src/single_gan/vendor/ops.py": "36f37585245eae323821345d69ab88663fb27fdd7913baab9d7efff8ba6b9596",
+      "src/single_gan/lora.py": "6bf5155f8b5ac8ef9afbf9c2d6285e776196d1a13c0ff83a51500fd224bf90f1"
+    },
+    "records": [
+      {
+        "model": "source",
+        "bank": "new16",
+        "count": 16,
+        "grid": "source-new16.png",
+        "sha256": "19c5655b713f12a0431d3911bda77f8736a2717d20e221780f6fe4f846c040b1",
+        "raw_min": -1.361687183380127,
+        "raw_max": 1.3276457786560059,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      },
+      {
+        "model": "historical",
+        "bank": "new16",
+        "count": 16,
+        "grid": "historical-new16.png",
+        "sha256": "bf8d8c165548357deb72dfec65959e4d75491c57c26397a6065048c3c874b9bf",
+        "raw_min": -1.1634416580200195,
+        "raw_max": 1.4044311046600342,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      },
+      {
+        "model": "historical1",
+        "bank": "new16",
+        "count": 16,
+        "grid": "historical1-new16.png",
+        "sha256": "7ed6b85dc0ca4bad5c1fbf20b69d393451965f7f26df0ae898d3cc70d832c8df",
+        "raw_min": -1.2017617225646973,
+        "raw_max": 1.374192237854004,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      },
+      {
+        "model": "historical1",
+        "bank": "fixed",
+        "count": 4,
+        "grid": "historical1-fixed.png",
+        "sha256": "74b3f38a8dda622c4923311604efd96baad0bb84c92c42c3a778343ce72e35ec",
+        "raw_min": -1.146899700164795,
+        "raw_max": 1.4317784309387207,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      },
+      {
+        "model": "historical1",
+        "bank": "development",
+        "count": 12,
+        "grid": "historical1-development.png",
+        "sha256": "5f71f3e1b78010d2dd812ae9ecde33c6d27b13370496f56d61650071acc6322e",
+        "raw_min": -1.166757345199585,
+        "raw_max": 1.336292028427124,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      },
+      {
+        "model": "rank32",
+        "bank": "new16",
+        "count": 16,
+        "grid": "rank32-new16.png",
+        "sha256": "2224407102665ac44ff27e55862339dcf674e96b840649b5c9bcecb877c10483",
+        "raw_min": -1.1659632921218872,
+        "raw_max": 1.3982899188995361,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      },
+      {
+        "model": "reset",
+        "bank": "new16",
+        "count": 16,
+        "grid": "reset-new16.png",
+        "sha256": "ce241c0222f1e158112071b654918f248930e43521f354b752258293798c9389",
+        "raw_min": -1.1142534017562866,
+        "raw_max": 1.519888997077942,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      },
+      {
+        "model": "mapping",
+        "bank": "new16",
+        "count": 16,
+        "grid": "mapping-new16.png",
+        "sha256": "5db63a9a4fbcf37164ba6585798711dc2f2b920278cafaa10e721d23b12ec9a2",
+        "raw_min": -1.3438374996185303,
+        "raw_max": 1.5829648971557617,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      },
+      {
+        "model": "both",
+        "bank": "new16",
+        "count": 16,
+        "grid": "both-new16.png",
+        "sha256": "b66f2e29e07ccc0159a4ae74c006ed8093a6cc284cf0c58643654eefac5206fa",
+        "raw_min": -1.7601354122161865,
+        "raw_max": 2.620119333267212,
+        "parameters_and_buffers_unchanged": true,
+        "synthesis_noise_matches_source": true
+      }
+    ],
+    "seconds": 349.08386512845755
   }
 }

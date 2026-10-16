@@ -1,6 +1,7 @@
 'use strict';
 const variants = {
-  historical: {label:'Historical run 2.21', note:'Recovered mapping and blend coefficients, with the official reference mapping. No new training.'},
+  historical: {label:'My original run 2.21', note:'My trained mapping and blend coefficients, combined with the official source mapping. New renders from my saved checkpoint; no additional training.'},
+  historical1: {label:'My original run 1', note:'A second checkpoint from my original training, using its own saved mapping and blend coefficients with the same official source mapping. No additional training.'},
   rank32: {label:'Rank-32 compression · historical biases retained', note:'Post-hoc SVD of historical mapping changes. Historical biases and blend retained. Zero training updates; this measures capacity, not learned LoRA performance.'},
   reset: {label:'Rank-32 compression · biases reset to pretrained values', note:'The same compressed mapping weight changes, with pretrained biases. Historical blend retained. Zero training updates.'},
   mapping: {label:'Mapping-only LoRA · rank 32 · step 6,000', note:'A newly trained adapter. Distorted vintage-like geometry and reduced useful variation; no demonstrated improvement over the historical model.'},
@@ -10,16 +11,17 @@ const selector = document.querySelector('#model-select');
 function updateComparison() {
   const key = selector.value;
   const bank = document.querySelector('input[name="bank"]:checked').value;
-  const count = bank === 'fixed' ? 4 : 12;
+  const count = {new16:16, fixed:4, development:12}[bank];
+  const bankLabel = {new16:'new matched', fixed:'fixed', development:'development'}[bank];
   for (const [imageId, linkId, prefix, label] of [
     ['source-grid','source-full','source','Pretrained source'],
     ['adapted-grid','adapted-full',key,variants[key].label]
   ]) {
     const img = document.getElementById(imageId);
     img.src = `assets/${prefix}-${bank}.png`;
-    img.alt = `${label}: all ${count} ${bank} samples, in the saved order. Open full resolution.`;
-    img.removeAttribute('width');
-    img.removeAttribute('height');
+    img.alt = `${label}: all ${count} ${bankLabel} samples, in the saved order. Open full resolution.`;
+    img.width = 2058;
+    img.height = {new16:2058, fixed:516, development:1544}[bank];
     document.getElementById(linkId).href = img.src;
   }
   document.querySelector('#model-label').textContent = variants[key].label;

@@ -1,6 +1,6 @@
 # One Image, Many Possibilities
 
-A figure-led research blog by Sean Chen about single-image GAN adaptation, recovered StyleGAN2 experiments, low-rank capacity, and visual evaluation.
+A figure-led research blog by Sean Chen about single-image GAN adaptation, his original StyleGAN2 training experiments, low-rank capacity, and visual evaluation.
 
 [Read the research blog](https://chseanc-gif.github.io/single-image-gan-research-blog/).
 
@@ -20,7 +20,7 @@ The surrounding research workspace is not part of this release. Do not upload it
 
 ## Evidence and image provenance
 
-`evidence.json` records extracted measurements, source-file hashes, asset hashes, and limitations. Sample images are unchanged copies of existing experiment artifacts, preserving order and full banks. The method diagram is explanatory artwork; it is not an experimental output.
+`evidence.json` records extracted measurements, source-file hashes, asset hashes, and limitations. Sample images are unchanged copies of saved experiment artifacts or new inference renders from existing trained weights, preserving order and full banks. The method diagram is explanatory artwork; it is not an experimental output.
 
 The reference photograph is the original project asset. Its separate authorship and license are not established in recovered records. This release grants no new license to that image or third-party model materials. The blog links to upstream research and implementations; no model weights or vendored model code are distributed.
 
@@ -29,3 +29,5 @@ The latest GenDA photographic reference crops are not included. The article repo
 Research snapshot: October 14, 2026, America/Los_Angeles.
 
 Augmentation documentation added October 16, 2026: original notebook pipeline, six consecutive saved input transformations, two discriminator views, and the paired cutout audit. The seven added PNGs are unchanged research artifacts; extracted parameters, source hashes, and limitations are recorded in `evidence.json`.
+
+The training-objective section is written in Sean’s first-person perspective. The default figure and comparison viewer show a new matched bank of 16 samples per model, including original runs 1 and 2.21. CPU seed 2026101601, fixed source synthesis noise, truncation 1, all samples retained in order. Earlier four/twelve-sample banks and their quantitative results remain available. No additional training was performed; weights remain local. See `evidence.json` for inference provenance and asset hashes.
