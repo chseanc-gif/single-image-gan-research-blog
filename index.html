@@ -26,7 +26,7 @@
       <h1>One image,<br>many <em>possibilities.</em></h1>
       <p class="subtitle">Revisiting single-image GAN adaptation</p>
       <p class="dek">Can a generator learn the character of one photograph<br class="desktop"> without losing the ability to imagine something new?</p>
-      <p class="byline">Sean Chen <span>·</span> October 14, 2026 <span>·</span> <span id="reading-time">12 min read</span></p>
+      <p class="byline">Sean Chen <span>·</span> October 14, 2026 <span>·</span> Updated October 16 <span>·</span> <span id="reading-time">12 min read</span></p>
       <div class="resource-links"><a class="primary" href="#method">Explore the method <span aria-hidden="true">↓</span></a><a href="#results">View experiments</a><a href="evidence.json">Data &amp; provenance <span aria-hidden="true">↗</span></a><a href="https://github.com/chseanc-gif/single-image-gan-research-blog">GitHub <span aria-hidden="true">↗</span></a></div>
     </div>
 
@@ -45,7 +45,7 @@
     </figure>
 
     <div class="article-layout">
-      <aside class="contents" aria-label="On this page"><p>On this page</p><nav><a href="#question">The question</a><a href="#method">The original idea</a><a href="#recovery">Recovering the experiment</a><a href="#results">What the samples reveal</a><a href="#capacity">Capacity ≠ optimization</a><a href="#metrics">When a metric misleads</a><a href="#next">The next investigation</a><a href="#evidence">Evidence &amp; references</a></nav></aside>
+      <aside class="contents" aria-label="On this page"><p>On this page</p><nav><a href="#question">The question</a><a href="#method">The original idea</a><a href="#augmentation">Designing the training views</a><a href="#recovery">Recovering the experiment</a><a href="#results">What the samples reveal</a><a href="#capacity">Capacity ≠ optimization</a><a href="#metrics">When a metric misleads</a><a href="#next">The next investigation</a><a href="#evidence">Evidence &amp; references</a></nav></aside>
       <article id="article">
         <section id="question">
           <p class="section-number">01 / The question</p>
@@ -69,8 +69,59 @@
           <details><summary>Implementation details that matter</summary><p>The combined model uses one 512-dimensional style vector and two learned 512-dimensional blend vectors. The mapping has eight fully connected layers. The restored discriminator retains the notebook’s constant 4.0 minibatch-statistic channel. Its early convolution blocks remain frozen while later blocks and the final layers train. The notebook’s duplicated 0.001 discriminator weight penalty is represented as a single 0.002 penalty. These are details of this project’s restoration, not default StyleGAN2 settings.</p></details>
         </section>
 
+        <section id="augmentation">
+          <p class="section-number">03 / Designing the training views</p>
+          <h2>One photograph.<br>Many ways to learn from it.</h2>
+          <p class="lead">The augmentation pipeline was a central part of my original design. With one photograph, deciding what the discriminator gets to see is part of deciding what the generator should learn.</p>
+          <p>My notebook combines a geometry-aware crop pipeline with two views of each example: a transformed view for the adapting discriminator and a whole-image view for the frozen reference discriminator. I built this around the car model’s rectangular image content and square input canvas. The color and cutout operations come from <a href="https://github.com/mit-han-lab/data-efficient-gans">Zhao et al.’s DiffAugment</a>; the project-specific work is their composition with padded crops, the real/fake data paths, and the two-discriminator design.</p>
+
+          <h3>Build a stream of training views</h3>
+          <p>The original dataset does not store thousands of independent car photographs. It repeatedly samples transformations of the same 512 × 384 reference. These transformations expose different scales, locations, colors, and visible regions; they cannot reveal a genuinely unseen side of the car.</p>
+          <ol class="augmentation-recipe">
+            <li><strong>Flip the real photograph.</strong><span>A horizontal flip is sampled with probability 0.5. Both real-data branches begin with that same orientation.</span></li>
+            <li><strong>Vary its appearance.</strong><span>Differentiable brightness, saturation, and contrast changes perturb the augmented branch. This makes the training view vary even when the underlying photograph does not.</span></li>
+            <li><strong>Pad, then crop and resize.</strong><span>Add 64 pixels on all four sides, giving a 640 × 512 canvas. Sample a crop covering 22.5–90% of that padded area, with width/height ratio 1.0–1.778, and resize it to 512 × 384. The extra canvas permits reframing and views containing more surrounding padding.</span></li>
+            <li><strong>Hide a random region.</strong><span>Cutout masks a rectangle with half the content height and half its width: 192 × 256 pixels before clipping at the image boundary. That is at most one quarter of the content canvas, not half its area.</span></li>
+            <li><strong>Restore the model’s canvas.</strong><span>Add the 64-pixel top and bottom borders to return to 512 × 512, then map values to the model’s training scale. Geometry is transformed within the rectangular content before those final borders are restored.</span></li>
+          </ol>
+          <p>The notebook deliberately uses random resized cropping without adding DiffAugment’s separate translation operation. The crop already changes framing. Its scale and aspect-ratio bounds are calculated from the reference’s 4:3 geometry, rather than copied unchanged from a square-image recipe.</p>
+
+          <figure class="augmentation-figure" id="augmentation-draws">
+            <div class="augmentation-gallery">
+              <a href="assets/augmentation-draw-01.png" target="_blank" rel="noopener"><span>Draw 1</span><img src="assets/augmentation-draw-01.png" width="512" height="512" loading="lazy" alt="Augmentation draw 1: a dark cropped view of the BMW front, with a masked region and black borders. Open the unchanged 512-pixel image."></a>
+              <a href="assets/augmentation-draw-02.png" target="_blank" rel="noopener"><span>Draw 2</span><img src="assets/augmentation-draw-02.png" width="512" height="512" loading="lazy" alt="Augmentation draw 2: a brighter reframed BMW, with a large black cutout over its upper-left body. Open the unchanged 512-pixel image."></a>
+              <a href="assets/augmentation-draw-03.png" target="_blank" rel="noopener"><span>Draw 3</span><img src="assets/augmentation-draw-03.png" width="512" height="512" loading="lazy" alt="Augmentation draw 3: a flipped, tightly framed front view, with a cutout covering the right side. Open the unchanged 512-pixel image."></a>
+              <a href="assets/augmentation-draw-04.png" target="_blank" rel="noopener"><span>Draw 4</span><img src="assets/augmentation-draw-04.png" width="512" height="512" loading="lazy" alt="Augmentation draw 4: a dark flipped BMW set within broad black padding, with lower body context partly obscured. Open the unchanged 512-pixel image."></a>
+              <a href="assets/augmentation-draw-05.png" target="_blank" rel="noopener"><span>Draw 5</span><img src="assets/augmentation-draw-05.png" width="512" height="512" loading="lazy" alt="Augmentation draw 5: a strongly darkened BMW and brick background, with much of the preview clipped to black. Open the unchanged 512-pixel image."></a>
+              <a href="assets/augmentation-draw-06.png" target="_blank" rel="noopener"><span>Draw 6</span><img src="assets/augmentation-draw-06.png" width="512" height="512" loading="lazy" alt="Augmentation draw 6: a reframed flipped BMW with a cutout over its upper-left region. Open the unchanged 512-pixel image."></a>
+            </div>
+            <figcaption><span>Figure 3.</span> Six consecutive draws from the restored original augmentation pipeline, saved during the October 4 audit with seed 2026100417. Every draw is shown, in order; click a tile for its unchanged native image. These are transformed real-positive examples, not generated cars or recovered historical minibatches. Values are clipped only to display these pictures, with no per-image normalization. Dark preview regions can therefore conceal out-of-display-range tensor values that training still receives.</figcaption>
+          </figure>
+
+          <h3>Keep a whole-image reference alongside the changing view</h3>
+          <div class="augmentation-branches" aria-label="Two discriminator paths, combined with equal weight">
+            <div><p class="figure-label">Adapting branch</p><p>Color → padded crop → cutout</p><strong>½ × adapting discriminator score</strong></div>
+            <div><p class="figure-label">Frozen reference branch</p><p>Whole image, with its model borders</p><strong>½ × frozen discriminator score</strong></div>
+          </div>
+          <p>I average these two scores before applying the adversarial loss. The design lets one branch adapt to varied observations of the target while the other continues to evaluate the whole image using its pretrained parameters. For real examples, “whole image” can still mean the horizontally flipped photograph; it skips the color, crop, and cutout operations.</p>
+          <p>Generated images follow the same color/crop/cutout recipe on the adapting branch. Their existing letterbox rows are removed first, so augmentation operates on their 512 × 384 content too. The frozen branch sees the full generated image. During the generator update, gradients pass through the transformations and through both discriminator branches. Freezing reference weights does not block the gradient back to the generated pixels. This is why the transforms are part of the learning signal, and why black cutouts in these previews are not images the generator is being asked to reproduce.</p>
+          <details><summary>Exact parameters and restoration details</summary><p>In the DiffAugment implementation used here, brightness adds a uniform offset in [−0.5, 0.5), saturation multiplies channel deviations from each pixel’s mean by a factor in [0, 2), and contrast multiplies deviations from the image mean by a factor in [0.5, 1.5). Color is applied before the all-side padding, then bilinear crop/resize, then cutout. Training does not clamp these color values to the display range. The restored crop explicitly uses <code>antialias=False</code> to approximate the historical torchvision behavior. Real examples receive independent draws; the fake crop is shared within a call, which means within a microbatch in the restoration rather than the original full batch. That preserves the recipe while changing its exact sampling sequence.</p></details>
+
+          <h3>Measure what the transformations leave visible</h3>
+          <p>Later, I audited the pipeline itself. Across 256 paired draws, I held the flip, crop, colors, and mask center fixed and changed only cutout’s dimension ratio from 0.5 to 0.25. The smaller mask retained more of the original photograph, allowing a precise test of whether the original setting hid too much context.</p>
+          <figure class="augmentation-figure" id="augmentation-cutout">
+            <a href="assets/augmentation-cutout-comparison.png" target="_blank" rel="noopener"><img src="assets/augmentation-cutout-comparison.png" width="1184" height="866" loading="lazy" alt="First three paired augmentation draws: original half-dimension cutout on the top row and quarter-dimension cutout below. Each column shares its crop, colors, flip, and mask center; smaller cutouts expose more of the same image."></a>
+            <figcaption><span>Figure 4.</span> The first three pairs from the saved augmentation audit. Top: original 0.5 dimension ratio. Bottom: 0.25. The figure is unchanged from the audit and shows transformed input data. It does not show a trained-model improvement.</figcaption>
+          </figure>
+          <div class="table-wrap"><table><caption>256 matched augmentation draws · means from the saved audit</caption><thead><tr><th scope="col">Cutout dimension ratio</th><th scope="col">Content canvas masked</th><th scope="col">Original photo retained, estimated</th></tr></thead><tbody><tr><th scope="row">0.5 · original</th><td>18.91%</td><td>58.33%</td></tr><tr><th scope="row">0.25 · smaller-mask control</th><td>5.43%</td><td>68.81%</td></tr></tbody></table></div>
+          <p class="small">Coverage includes the background. Retained photo area is estimated from crop overlap and the resized mask; it is not a measurement of car-part visibility or semantic information. Edge clipping explains why the mean masked area is below the nominal 25% or 6.25%.</p>
+          <p>A subsequent matched continuation tested that smaller cutout for sixteen further updates from the same saved step-30 state. The step-46 comparison showed no convincing visual advantage across four fixed and twelve development inputs. That short, single-seed result leaves the broader augmentation question open. It does distinguish a measurable change in input coverage from evidence of better generation.</p>
+          <details><summary>How the later GenDA-inspired augmentation differs</summary><p>The later car baseline uses NVIDIA’s <a href="https://github.com/NVlabs/stylegan2-ada-pytorch/blob/main/training/augment.py">StyleGAN2-ADA augmentation implementation</a>, with a documented selection of pixel, geometric, and color transforms, excluding cutout, filtering, and additive noise. It augments the rectangular car content before restoring the borders and schedules strength linearly from 0 to 0.6 over 200,000 real-image presentations. This is a separate, explicitly chosen implementation for those controls. It is not the original notebook recipe or a claim about GenDA’s unavailable training code, and the linear schedule is not an adaptive feedback controller.</p></details>
+          <p>For this project, augmentation is an explicit hypothesis about what can vary while useful evidence remains. The padded geometry, differentiable real/fake paths, and whole-image reference branch make that hypothesis concrete enough to inspect and test.</p>
+        </section>
+
         <section id="recovery">
-          <p class="section-number">03 / Recovering the experiment</p>
+          <p class="section-number">04 / Recovering the experiment</p>
           <h2>What did the old model actually learn?</h2>
           <p>Revisiting an old notebook first required establishing what could be recovered. Two historical generators, labeled run 1 and run 2.21, loaded into the restored 512-pixel implementation. For both, all <strong>137 non-mapping tensors</strong> matched the official pretrained car generator exactly. The learned changes were in the mapping network and the saved blend coefficients.</p>
           <p>That is direct evidence for the design’s intended constraint: the recovered generator did not learn new synthesis filters. Compact mapping packages could reconstruct all 153 saved generator tensors exactly. But the archive lacked the separate original reference model, per-run source, and exact training-step metadata. Fresh inference therefore uses the official reference mapping and the notebook’s combined-mapping formula. It is a documented reconstruction, with incomplete historical provenance.</p>
@@ -78,7 +129,7 @@
         </section>
 
         <section id="results">
-          <p class="section-number">04 / Inspect the outputs</p>
+          <p class="section-number">05 / Inspect the outputs</p>
           <h2>Appearance transfers.<br>Identity remains difficult.</h2>
           <p>The recovered model visibly changes the distribution. Red paint, greenery, and brick textures become recurring themes, while viewpoints and vehicle shapes still vary. The samples also expose the limitation: SUVs, incorrect grilles, and inconsistent body geometry remain. Shared colors and backgrounds are easier to recognize than faithful BMW identity.</p>
           <figure class="explorer" id="sample-explorer">
@@ -86,13 +137,13 @@
             <div class="sample-strip"><p class="figure-label">Pretrained source</p><a id="source-full" href="assets/source-fixed.png" target="_blank" rel="noopener"><img id="source-grid" src="assets/source-fixed.png" width="2058" height="516" loading="lazy" alt="All four fixed samples from the pretrained car generator. Open full resolution."></a></div>
             <div class="sample-strip"><p class="figure-label" id="model-label">Historical run 2.21</p><a id="adapted-full" href="assets/historical-fixed.png" target="_blank" rel="noopener"><img id="adapted-grid" src="assets/historical-fixed.png" width="2058" height="516" loading="lazy" alt="All four fixed samples from historical run 2.21. Open full resolution."></a></div>
             <p class="explorer-note" id="comparison-note" aria-live="polite">Recovered mapping and blend coefficients, with the official reference mapping. No new training.</p>
-            <figcaption><span>Figure 3.</span> Explore every image in the fixed four or development twelve bank. Within each bank the sample order is preserved; click a grid to inspect the original file. Fixed latents match exactly. Development latents generated across environments differ by at most 1.55 × 10<sup>−6</sup>; cross-device renders are not bitwise identical. The twelve development inputs participated in model selection. This viewer switches saved outputs; it does not run a model.</figcaption>
+            <figcaption><span>Figure 5.</span> Explore every image in the fixed four or development twelve bank. Within each bank the sample order is preserved; click a grid to inspect the original file. Fixed latents match exactly. Development latents generated across environments differ by at most 1.55 × 10<sup>−6</sup>; cross-device renders are not bitwise identical. The twelve development inputs participated in model selection. This viewer switches saved outputs; it does not run a model.</figcaption>
             <noscript><p>The interactive selector needs JavaScript. The source and historical fixed grids above remain visible. See <a href="evidence.json">the evidence file</a> for all published image paths.</p></noscript>
           </figure>
         </section>
 
         <section id="capacity">
-          <p class="section-number">05 / A controlled diagnostic</p>
+          <p class="section-number">06 / A controlled diagnostic</p>
           <h2>Low rank was enough<br>to store the answer.</h2>
           <p><a href="https://arxiv.org/abs/2106.09685">LoRA</a> adapts a model through low-rank weight updates. After the early GAN LoRA experiments struggled, I asked a narrower question: could a low-rank update represent the historical mapping changes at all?</p>
           <p>To test that, I decomposed each historical mapping weight difference from the pretrained model using singular value decomposition, then kept only its leading components. This is a post-hoc compression experiment with zero training updates. The original learned blend coefficients were retained, and I separately tested whether to keep the historical biases.</p>
@@ -103,7 +154,7 @@
               <div class="bar-row"><span>Rank 32 · reset biases</span><div class="bar-track"><i style="width:95.4097%"></i></div><b>0.09541</b></div>
               <div class="bar-row"><span>Rank 128 · reset biases</span><div class="bar-track"><i style="width:93.6292%"></i></div><b>0.09363</b></div>
             </div>
-            <figcaption><span>Figure 4.</span> Compression measures fidelity to the historical generator, not quality or similarity to the reference photograph. All three variants preserve the historical blend coefficients. Values are from the saved <a href="evidence.json">render audit</a>.</figcaption>
+            <figcaption><span>Figure 6.</span> Compression measures fidelity to the historical generator, not quality or similarity to the reference photograph. All three variants preserve the historical blend coefficients. Values are from the saved <a href="evidence.json">render audit</a>.</figcaption>
           </figure>
           <p>Rank 32 with historical biases produced outputs almost indistinguishable from the original across the four fixed and twelve development samples. Resetting the biases to their pretrained values caused visible changes in lighting, geometry, wheels, and backgrounds. Increasing the rank to 128 did little to recover the missing bias contribution in this diagnostic.</p>
           <p>This finding made “just increase the rank” a less persuasive next move. The low-rank representation could already approximate this checkpoint closely on the inspected inputs. The unresolved issue was how to <em>learn</em> a useful transformation from the single image. Bias training became a concrete ablation, although its later tested variants did not establish a quality improvement.</p>
@@ -111,20 +162,20 @@
         </section>
 
         <section id="metrics">
-          <p class="section-number">06 / A useful failure</p>
+          <p class="section-number">07 / A useful failure</p>
           <h2>The score improved.<br>The images got worse.</h2>
           <p>A bounded overnight experiment tested mapping-only and mapping-plus-synthesis LoRA, alongside a diagnostic full-mapping control. Across the batch, 18,630 updates took about 7 hours 51 minutes on one Tesla T4. The controller selected a rank-8 mapping-plus-synthesis checkpoint at step 6,000 using numerical screening.</p>
           <p>On twelve validation inputs, that model moved closer to the target photograph according to <a href="https://arxiv.org/abs/1801.03924">LPIPS</a>. Looking at the full images told a different story.</p>
           <div class="table-wrap"><table><caption>Same 12 validation inputs · selected checkpoints</caption><thead><tr><th scope="col">Model</th><th scope="col">Target LPIPS</th><th scope="col">Pairwise LPIPS</th></tr></thead><tbody><tr><th scope="row">Historical 2.21</th><td>0.60160</td><td>0.55656</td></tr><tr><th scope="row">Mapping LoRA, rank 32 / 6,000</th><td>0.60823</td><td>0.50117</td></tr><tr><th scope="row">Mapping + synthesis, rank 8 / 6,000</th><td>0.57008</td><td>0.47252</td></tr></tbody></table></div>
           <p class="small">Target LPIPS measures distance to one training photograph. Pairwise LPIPS measures differences between generated samples. Neither is a standalone quality score, and increasing pairwise distance can also reward artifacts. Measurements use LPIPS-Alex 0.1.4 on content cropped to remove letterbox bars, resized to 192 × 256, and clamped to the display range.</p>
-          <figure class="failure-figure"><a href="assets/overnight-comparison.png" target="_blank" rel="noopener"><img src="assets/overnight-comparison.png" width="2058" height="1722" loading="lazy" alt="All four fixed inputs for each model: historical run 2.21 retains more plausible cars; mapping-only LoRA produces distorted vintage-like shapes; mapping-plus-synthesis LoRA produces severe stripes, embossed edges and malformed windows."></a><figcaption><span>Figure 5.</span> All four fixed samples, with one row per model. The numerically selected model has severe texture and geometry artifacts. The larger sample banks are available in Figure 3; the separate <a href="assets/lora-final24.png" target="_blank" rel="noopener">24-input audit</a> also showed these defects.</figcaption></figure>
+          <figure class="failure-figure"><a href="assets/overnight-comparison.png" target="_blank" rel="noopener"><img src="assets/overnight-comparison.png" width="2058" height="1722" loading="lazy" alt="All four fixed inputs for each model: historical run 2.21 retains more plausible cars; mapping-only LoRA produces distorted vintage-like shapes; mapping-plus-synthesis LoRA produces severe stripes, embossed edges and malformed windows."></a><figcaption><span>Figure 7.</span> All four fixed samples, with one row per model. The numerically selected model has severe texture and geometry artifacts. The larger sample banks are available in Figure 5; the separate <a href="assets/lora-final24.png" target="_blank" rel="noopener">24-input audit</a> also showed these defects.</figcaption></figure>
           <p>The selected model produced striping, embossed edges, malformed windows, and repeated brick backgrounds. The rank-32 mapping-only model avoided some of the striping but drifted toward distorted vintage-car shapes. Neither demonstrated an improvement over historical run 2.21.</p>
           <p>A separate audit on 24 inputs fresh to that selection reinforced the finding: the selected model’s target LPIPS was 0.56726, yet its image defects persisted. Its raw output maximum also reached 2.6033, exceeding the experiment’s 2.5 range guard. Those inputs became development evidence once inspected; they cannot serve as an untouched test set for later decisions.</p>
           <p>The practical lesson is to inspect the whole bank alongside the metric. A scalar distance can capture a movement toward familiar textures while missing a deterioration in the object that matters. This was one target and one training seed, with incomplete historical training metadata—not an equal-budget benchmark establishing that LoRA is generally worse than full fine-tuning.</p>
         </section>
 
         <section id="next">
-          <p class="section-number">07 / Where the investigation went</p>
+          <p class="section-number">08 / Where the investigation went</p>
           <h2>Make the next question smaller.</h2>
           <p>The broader project also explored SDXL reference conditioning and LoRA. Development samples showed closer BMW-like geometry, with unresolved diversity and fine-detail tradeoffs. Those experiments use a different pretrained system, and their prompts explicitly name the BMW E46. They are useful context, but they do not establish an improvement to the original StyleGAN2 method.</p>
           <p>The subsequent GAN investigation turned to <a href="https://genforce.github.io/genda/">GenDA</a>, which studies adaptation through lightweight generator and discriminator components. My implementations explored a shared scale-and-bias transformation in style space, a frozen discriminator feature backbone with a trainable output classifier, and different scopes for the final RGB layer.</p>
@@ -136,10 +187,10 @@
         </section>
 
         <section id="evidence">
-          <p class="section-number">08 / Evidence &amp; context</p>
+          <p class="section-number">09 / Evidence &amp; context</p>
           <h2>A record you can inspect</h2>
           <p>This is a research retrospective and development report, not a peer-reviewed paper or a state-of-the-art claim. All displayed samples are existing experiment artifacts. No figure uses newly generated illustrative images, retouching, or color correction. The interactive viewer includes every image in each selected bank.</p>
-          <ul class="evidence-list"><li><a href="evidence.json">Measurements and provenance</a> — extracted numbers, experimental caveats, source-file hashes, and published asset hashes.</li><li><a href="assets/rank-comparison.png" target="_blank" rel="noopener">Compression comparison at full resolution</a> — historical outputs, rank-32 compression, and the bias-reset control.</li><li><a href="assets/lora-final24.png" target="_blank" rel="noopener">The complete 24-input LoRA audit</a> — fresh to the original checkpoint selection, now development evidence.</li></ul>
+          <ul class="evidence-list"><li><a href="evidence.json">Measurements and provenance</a> — extracted numbers, experimental caveats, source-file hashes, augmentation parameters and audits, and published asset hashes.</li><li><a href="assets/rank-comparison.png" target="_blank" rel="noopener">Compression comparison at full resolution</a> — historical outputs, rank-32 compression, and the bias-reset control.</li><li><a href="assets/lora-final24.png" target="_blank" rel="noopener">The complete 24-input LoRA audit</a> — fresh to the original checkpoint selection, now development evidence.</li></ul>
           <p>The release contains the article, saved figures, and selected evidence. Training checkpoints, original notebook archives, account credentials, and private run logs are not part of this blog release. The later photographic GenDA figure crops are not redistributed here.</p>
           <h3>Research that informed this work</h3>
           <ol class="references">
@@ -147,9 +198,9 @@
             <li><a href="https://arxiv.org/abs/2106.09685">Hu et al. — LoRA: Low-Rank Adaptation of Large Language Models.</a> The low-rank adaptation framework explored in the later GAN experiments.</li>
             <li><a href="https://arxiv.org/abs/1801.03924">Zhang et al. — The Unreasonable Effectiveness of Deep Features as a Perceptual Metric.</a> CVPR 2018. The source of LPIPS, used here as a diagnostic.</li>
             <li><a href="https://genforce.github.io/genda/">Yang et al. — One-Shot Generative Domain Adaptation.</a> The GenDA project and paper, motivating the later lightweight-adapter controls.</li>
-            <li><a href="https://github.com/mit-han-lab/data-efficient-gans">Zhao et al. — Differentiable Augmentation for Data-Efficient GAN Training.</a> The augmentation code used in the original project and restoration.</li>
+            <li><a href="https://github.com/mit-han-lab/data-efficient-gans">Zhao et al. — Differentiable Augmentation for Data-Efficient GAN Training.</a> The source of the differentiable color and cutout transforms used in my original pipeline and restoration.</li>
           </ol>
-          <details><summary>Presentation and artifact notes</summary><p>The page follows the figure-led research communication of <a href="https://www.instruct-pix2pix.timothybrooks.com/">InstructPix2Pix</a>, the <a href="https://github.com/NVlabs/stylegan2">StyleGAN2 release</a>, and Google’s <a href="https://research.google/blog/transformer-a-novel-neural-network-architecture-for-language-understanding/">Transformer research post</a>. The writing, layout, and method diagram are prepared for this project. No affiliation with those authors is implied.</p><p>The reference photograph comes from the original project asset. Its separate authorship and license are not established in the recovered records; this release grants no new license to that photograph or third-party model materials. Sample grids are byte-for-byte copies of saved artifacts. Figure captions distinguish reconstructed historical inference, post-hoc compression, and newly trained adapters. Historical execution metadata is incomplete, and comparisons are not a claim of bitwise historical reproduction.</p></details>
+          <details><summary>Presentation and artifact notes</summary><p>The page follows the figure-led research communication of <a href="https://www.instruct-pix2pix.timothybrooks.com/">InstructPix2Pix</a>, the <a href="https://github.com/NVlabs/stylegan2">StyleGAN2 release</a>, and Google’s <a href="https://research.google/blog/transformer-a-novel-neural-network-architecture-for-language-understanding/">Transformer research post</a>. The writing, layout, and method diagram are prepared for this project. The augmentation section was added on October 16, 2026, using the original notebook and saved October 4 audits; the other research sections retain the October 14 snapshot. No affiliation with those authors is implied.</p><p>The reference photograph comes from the original project asset. Its separate authorship and license are not established in the recovered records; this release grants no new license to that photograph or third-party model materials. Sample grids are byte-for-byte copies of saved artifacts. Figure captions distinguish reconstructed historical inference, post-hoc compression, and newly trained adapters. Historical execution metadata is incomplete, and comparisons are not a claim of bitwise historical reproduction.</p></details>
         </section>
       </article>
     </div>

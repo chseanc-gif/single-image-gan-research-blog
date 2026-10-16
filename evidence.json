@@ -506,6 +506,48 @@
       "original_project_path": "README.md",
       "sha256": "1c3b34fe328333afd0869ca22d0b9ab3c471093cfa088c6dcf196d810c7119db",
       "included_in_release": false
+    },
+    {
+      "key": "original_notebook",
+      "original_project_path": "archive/original.ipynb",
+      "sha256": "5b220853357cb135308c3c9b53bc83fc12736623462deda6bb941de22337475e",
+      "included_in_release": false
+    },
+    {
+      "key": "original_augmentation_loader",
+      "original_project_path": "src/single_gan/data.py",
+      "sha256": "07b74f508bc8f95b12b710160b3da841404d9926c9a7ffdcd74190a8e3dd7055",
+      "included_in_release": false
+    },
+    {
+      "key": "diffaugment_primitives",
+      "original_project_path": "src/single_gan/diffaugment.py",
+      "sha256": "5009bd767cb55f966f36b4147bf06b1f2317b40b2f330192065e230793ef2a69",
+      "included_in_release": false
+    },
+    {
+      "key": "augmentation_visual_provenance",
+      "original_project_path": "runs/lora-campaign/real-training-examples-20261004/provenance.json",
+      "sha256": "dfba5b3650d3dd24dba135609c2cb2e4d7ad5271d2a2b69e0a101585997b6bc0",
+      "included_in_release": false
+    },
+    {
+      "key": "paired_augmentation_audit",
+      "original_project_path": "runs/lora-campaign/augmentation-paired-audit-20261004/result.json",
+      "sha256": "83e3a3417b89dbb443524cc7adff652d54e4e697abe2c62280ddda5d469ff8f5",
+      "included_in_release": false
+    },
+    {
+      "key": "cutout_followup_review",
+      "original_project_path": "runs/lora-campaign/historical-teacher-cutout025-review/review.json",
+      "sha256": "058de60f51aea5408f6e9a5e0d10d846538adfdb11bf24e163218fde3138050d",
+      "included_in_release": false
+    },
+    {
+      "key": "later_genda_augmentation",
+      "original_project_path": "src/single_gan/genda_augmentation.py",
+      "sha256": "c05e3fc7c8e4cb3b61f0c0ce303393b5f16af2e0fef89302ff5df6b6572307f2",
+      "included_in_release": false
     }
   ],
   "published_assets": [
@@ -648,7 +690,273 @@
       "sha256": "638cce07184c2905f46af2cda321832b707cd322a11328e70c9f06279781773e",
       "bytes": 382841,
       "transformation": "none; byte-for-byte copy"
+    },
+    {
+      "published_path": "assets/augmentation-draw-01.png",
+      "original_project_path": "runs/lora-campaign/real-training-examples-20261004/real-example-01.png",
+      "sha256": "9cbca5ed417398e7e0f0d1329582208242d4a6e322fa662a21237735f2f559f0",
+      "bytes": 62150,
+      "transformation": "none; byte-for-byte copy of saved augmentation preview; original display clipping documented above"
+    },
+    {
+      "published_path": "assets/augmentation-draw-02.png",
+      "original_project_path": "runs/lora-campaign/real-training-examples-20261004/real-example-02.png",
+      "sha256": "c691ce67e7f1b35b589093a73b2651f1e5a3b152bd2d1b3db2033c9f7de9092b",
+      "bytes": 187449,
+      "transformation": "none; byte-for-byte copy of saved augmentation preview; original display clipping documented above"
+    },
+    {
+      "published_path": "assets/augmentation-draw-03.png",
+      "original_project_path": "runs/lora-campaign/real-training-examples-20261004/real-example-03.png",
+      "sha256": "58432b1cc63ea33b51e23f0911b0fa4a91971c316c56cdd9d66760a9ee2f6d26",
+      "bytes": 171095,
+      "transformation": "none; byte-for-byte copy of saved augmentation preview; original display clipping documented above"
+    },
+    {
+      "published_path": "assets/augmentation-draw-04.png",
+      "original_project_path": "runs/lora-campaign/real-training-examples-20261004/real-example-04.png",
+      "sha256": "6617277e7220d6ed31a6b9e1a750b1fc26f57aa1a4490949d0ca06c96e515613",
+      "bytes": 188762,
+      "transformation": "none; byte-for-byte copy of saved augmentation preview; original display clipping documented above"
+    },
+    {
+      "published_path": "assets/augmentation-draw-05.png",
+      "original_project_path": "runs/lora-campaign/real-training-examples-20261004/real-example-05.png",
+      "sha256": "4c8f64cd61d2d5decc4750245adf7056d898b3f49edf60fc4c907d91a2e8886d",
+      "bytes": 72390,
+      "transformation": "none; byte-for-byte copy of saved augmentation preview; original display clipping documented above"
+    },
+    {
+      "published_path": "assets/augmentation-draw-06.png",
+      "original_project_path": "runs/lora-campaign/real-training-examples-20261004/real-example-06.png",
+      "sha256": "f0562c88ea7653f8e435fdf5ff9cd01ba46e094ad44f6305d2b2661abe084639",
+      "bytes": 197867,
+      "transformation": "none; byte-for-byte copy of saved augmentation preview; original display clipping documented above"
+    },
+    {
+      "published_path": "assets/augmentation-cutout-comparison.png",
+      "original_project_path": "runs/lora-campaign/augmentation-paired-audit-20261004/paired-cutout-grid.png",
+      "sha256": "9e75319cf45d231adcdbdbb4e1a1f59d9b2464cbc57a339767bc89454e1723a6",
+      "bytes": 773696,
+      "transformation": "none; byte-for-byte copy of saved paired diagnostic figure"
     }
   ],
-  "disclosure": "Selected factual extracts and unchanged experiment figures only. Source records, checkpoints, notebooks, private run logs and credentials are not included. All figures represent previously saved outputs; the vector method diagram is explanatory. The original reference photograph has no separately verified authorship/license in recovered records; no new image license is granted."
+  "disclosure": "Selected factual extracts and unchanged experiment figures only. Source records, checkpoints, notebooks, private run logs and credentials are not included. All figures represent previously saved outputs; the vector method diagram is explanatory. The original reference photograph has no separately verified authorship/license in recovered records; no new image license is granted.",
+  "augmentation_section_added": "2026-10-16",
+  "original_augmentation": {
+    "provenance": "Original notebook cell 33 (zero-indexed), two-input discriminator cell 29, training loop cell 45; restored SingleImage and AdaptedDiscriminator implementations.",
+    "attribution": "Color and cutout primitives: Zhao et al., DiffAugment. Project-specific composition: padded random resized crops, reference geometry, real/fake paths and two discriminator views.",
+    "upstream": "https://github.com/mit-han-lab/data-efficient-gans",
+    "reference_width_height": [
+      512,
+      384
+    ],
+    "real_flip_probability": 0.5,
+    "order": [
+      "real input horizontal flip",
+      "color: brightness, saturation, contrast",
+      "zero-pad 64 on all sides",
+      "random resized crop back to 512x384",
+      "cutout",
+      "zero-pad 64 top and bottom",
+      "multiply by 2, subtract 1"
+    ],
+    "brightness_offset_range": [
+      -0.5,
+      0.5
+    ],
+    "saturation_factor_range": [
+      0,
+      2
+    ],
+    "contrast_factor_range": [
+      0.5,
+      1.5
+    ],
+    "uniform_ranges_upper_bound_exclusive": true,
+    "crop_canvas_width_height": [
+      640,
+      512
+    ],
+    "crop_area_fraction_of_padded_canvas": [
+      0.225,
+      0.9
+    ],
+    "crop_width_height_ratio": [
+      1.0,
+      1.7777773333333333
+    ],
+    "resize_interpolation": "bilinear; antialias=False in restoration",
+    "diffaugment_translation_used": false,
+    "cutout_dimension_ratio": 0.5,
+    "cutout_height_width": [
+      192,
+      256
+    ],
+    "maximum_cutout_content_area_fraction": 0.25,
+    "discriminator": "0.5 adapted(augmented) + 0.5 frozen_reference(original); loss applied to the combined score",
+    "real_original_branch": "Whole possibly flipped photo with top/bottom borders; no color/crop/cutout",
+    "fake_original_branch": "Full generated image",
+    "fake_augmented_branch": "Convert to [0,1] coordinates, remove rows outside [64,448), apply color/crop/cutout and restore borders; differentiable to generated input",
+    "sampling_caveat": "Independent real augmentation per example; fake crop shared within the full batch in notebook, within a microbatch in restoration. Exact historical random sequence is not reproduced.",
+    "saved_visuals": {
+      "created_utc": "2026-10-04T17:01:21.996445+00:00",
+      "seed": 2026100417,
+      "count": 6,
+      "sampling": "Six consecutive SingleImage.real(1, cpu) calls; no selection",
+      "meaning": "Illustrative new real-positive draws from the exact current source, not recovered optimizer-step batches",
+      "models_loaded": false,
+      "display": "Fixed training [-1,1] mapped to [0,1] and clipped for display; no per-image normalization. Native individual images retained; grid tiles downsampled to 384px.",
+      "photo_sha256": "dcfca4ba765e44a636eb50b923cd29d90cd91fe0a61ba8cbf2dfd10ed3629bd4"
+    },
+    "paired_cutout_audit": {
+      "seed": 2026100434,
+      "draws": 256,
+      "policies": {
+        ".5": {
+          "crop_photo_fraction": {
+            "mean": 0.7291252414385477,
+            "minimum": 0.2836558024088542,
+            "p10": 0.4218012491861979,
+            "median": 0.7467803955078125,
+            "p90": 1.0,
+            "maximum": 1.0
+          },
+          "cutout_fraction": {
+            "mean": 0.18908522580750287,
+            "minimum": 0.07862347364425659,
+            "p10": 0.1173858642578125,
+            "median": 0.1888020634651184,
+            "p90": 0.25,
+            "maximum": 0.25
+          },
+          "remaining_photo_fraction_approx": {
+            "mean": 0.5833312109814616,
+            "minimum": 0.21200748742952177,
+            "p10": 0.33531758751147817,
+            "median": 0.6033792215021094,
+            "p90": 0.7982837583240325,
+            "maximum": 0.9152698516845703
+          },
+          "output_padding_fraction": {
+            "mean": 0.15644212160259485,
+            "minimum": 0.0,
+            "p10": 0.032344818115234375,
+            "median": 0.16076070070266724,
+            "p90": 0.27206143736839294,
+            "maximum": 0.3313301205635071
+          },
+          "display_clipped_component_fraction": {
+            "mean": 0.18392555576009784,
+            "minimum": 0.0,
+            "p10": 0.0046242609387263656,
+            "median": 0.140380859375,
+            "p90": 0.39886727929115295,
+            "maximum": 0.6625400185585022
+          },
+          "fraction_draws_retaining_under_half_photo": 0.32421875
+        },
+        ".25": {
+          "crop_photo_fraction": {
+            "mean": 0.7291252414385477,
+            "minimum": 0.2836558024088542,
+            "p10": 0.4218012491861979,
+            "median": 0.7467803955078125,
+            "p90": 1.0,
+            "maximum": 1.0
+          },
+          "cutout_fraction": {
+            "mean": 0.05430283164605498,
+            "minimum": 0.023854553699493408,
+            "p10": 0.03515625,
+            "median": 0.0625,
+            "p90": 0.0625,
+            "maximum": 0.0625
+          },
+          "remaining_photo_fraction_approx": {
+            "mean": 0.6881435132909743,
+            "minimum": 0.26005331273033033,
+            "p10": 0.3945422655233415,
+            "median": 0.6972888044219872,
+            "p90": 0.9194217228596244,
+            "maximum": 0.9920161366462708
+          },
+          "output_padding_fraction": {
+            "mean": 0.15644212160259485,
+            "minimum": 0.0,
+            "p10": 0.032344818115234375,
+            "median": 0.16076070070266724,
+            "p90": 0.27206143736839294,
+            "maximum": 0.3313301205635071
+          },
+          "display_clipped_component_fraction": {
+            "mean": 0.21649977876485593,
+            "minimum": 0.0,
+            "p10": 0.010073344223201275,
+            "median": 0.1678398996591568,
+            "p90": 0.46493785083293915,
+            "maximum": 0.7309977412223816
+          },
+          "fraction_draws_retaining_under_half_photo": 0.203125
+        }
+      },
+      "instrumentation_exact_at_three_seeds": true,
+      "paired_colors_crops_flips_rng_exact": true,
+      "smaller_masks_subset_of_current_masks": true,
+      "fake_gradients_finite_nonzero": true,
+      "model_loads": 0,
+      "training_updates": 0,
+      "limitations": [
+        "Photo coverage includes background; no car segmentation or measured wheel visibility.",
+        "Remaining photo coverage is a resampling-based area estimate, not semantic information.",
+        "Clipping is for display only; training preserves out-of-display-range values.",
+        "Smaller cutout changes only this operation; crop/color may still be excessive or necessary.",
+        "Coverage improvements do not establish better GAN quality or less overfitting."
+      ]
+    },
+    "matched_training_followup": {
+      "status": "reviewed_no_convincing_win",
+      "step": 46,
+      "control_step": 46,
+      "matched_control_update_count": true,
+      "all16_inspected": true,
+      "fixed_count": 4,
+      "development_count": 12,
+      "assessment": "Minor shading/reflection/body changes; no convincing image-quality or target-appearance advantage over historical or matched0.5 control. Car make/model mismatch is not treated as failure. Existing range of body types/viewpoints retained, no obvious new collapse.",
+      "limits": [
+        "One training seed and16 development samples, no blinded preference study.",
+        "Historical run reconstructed with recovered weights and documented public mapping/noise conventions.",
+        "Small visual changes do not establish a publication contribution.",
+        "Reserved final24 unused."
+      ],
+      "start_step": 30,
+      "additional_updates_per_arm": 16
+    },
+    "later_genda_car_control": {
+      "source": "https://github.com/NVlabs/stylegan2-ada-pytorch",
+      "commit": "d72cc7d041b42ec8e806021a205ed9349f87c6a4",
+      "operations": [
+        "xflip",
+        "rotate90",
+        "xint",
+        "scale",
+        "rotate",
+        "aniso",
+        "xfrac",
+        "brightness",
+        "contrast",
+        "lumaflip",
+        "hue",
+        "saturation"
+      ],
+      "excluded": [
+        "cutout",
+        "filter",
+        "noise"
+      ],
+      "schedule": "linear 0 to 0.6 over 200000 real presentations, not adaptive feedback",
+      "car_geometry": "augment rows 64:448, then restore 64-pixel black top/bottom borders",
+      "caveat": "Explicit choices for GenDA-inspired controls; not the original recipe or confirmed unavailable GenDA implementation."
+    }
+  }
 }

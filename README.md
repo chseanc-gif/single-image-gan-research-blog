@@ -27,3 +27,5 @@ The reference photograph is the original project asset. Its separate authorship 
 The latest GenDA photographic reference crops are not included. The article reports preliminary numerical summaries with their single-reference, single-seed, development-only limitations. It does not claim an exact reproduction or a benchmark improvement.
 
 Research snapshot: October 14, 2026, America/Los_Angeles.
+
+Augmentation documentation added October 16, 2026: original notebook pipeline, six consecutive saved input transformations, two discriminator views, and the paired cutout audit. The seven added PNGs are unchanged research artifacts; extracted parameters, source hashes, and limitations are recorded in `evidence.json`.
